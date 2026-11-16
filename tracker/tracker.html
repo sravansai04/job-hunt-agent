@@ -1,297 +1,489 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Job Hunt Tracker</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: a single working column — pulse numbers, follow-ups due, pipeline list; form slides in above the list. */
+/* Layout: a pipeline control room. Summary strip, then "where it stands" (funnel + cadence) beside "waiting on you";
+   Board and All roles are separate views on the same data, switched by tabs (#overview, #board, #roles). */
 :root{
-  --bg:#F3F5F7; --surface:#FFFFFF; --ink:#16212B; --muted:#5B6874; --line:#DCE2E7;
-  --accent:#1F6F5C; --accent-ink:#FFFFFF; --accent-soft:#E2F0EB;
-  --warn:#A55B00; --warn-soft:#FBEBD6; --bad:#A3312B; --bad-soft:#F7E1DF; --good:#1F6F5C;
-  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
-  --body:"IBM Plex Sans", system-ui, -apple-system, sans-serif;
-  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --bg:#F2F4F7; --surface:#FFFFFF; --sunk:#E9EDF2; --ink:#141C26; --muted:#5A6676; --faint:#8A95A3; --line:#D9DFE6;
+  --accent:#2F55D4; --accent-ink:#FFFFFF; --accent-soft:#E4EAFB;
+  --f1:#2F55D4; --f2:#4C70E0; --f3:#6E8CE8; --f4:#93ABF0; --f5:#B9C9F6;
+  --good:#23824A; --good-soft:#DFF1E6; --warn:#9A5B00; --warn-soft:#FBEBD2; --bad:#B8322C; --bad-soft:#F8E0DE;
+  --display:"Bricolage Grotesque","Avenir Next",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0F151A; --surface:#172028; --ink:#E6ECF0; --muted:#97A4AE; --line:#2A3640;
-  --accent:#5DC0A3; --accent-ink:#0B1A15; --accent-soft:#183A31;
-  --warn:#F0A957; --warn-soft:#3A2A14; --bad:#F08A82; --bad-soft:#3B1D1B; --good:#5DC0A3; color-scheme:dark}}
+  --bg:#0E131A; --surface:#161D26; --sunk:#1D2631; --ink:#E7ECF2; --muted:#9AA6B4; --faint:#6F7B89; --line:#2A3542;
+  --accent:#86A2FF; --accent-ink:#0B1530; --accent-soft:#1E2A4D;
+  --f1:#86A2FF; --f2:#6E8CF2; --f3:#5875DE; --f4:#4660C2; --f5:#36499A;
+  --good:#5CC98A; --good-soft:#163526; --warn:#F0AE55; --warn-soft:#3A2A13; --bad:#F2857E; --bad-soft:#3D1D1B; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0F151A; --surface:#172028; --ink:#E6ECF0; --muted:#97A4AE; --line:#2A3640;
-  --accent:#5DC0A3; --accent-ink:#0B1A15; --accent-soft:#183A31;
-  --warn:#F0A957; --warn-soft:#3A2A14; --bad:#F08A82; --bad-soft:#3B1D1B; --good:#5DC0A3; color-scheme:dark}
+  --bg:#0E131A; --surface:#161D26; --sunk:#1D2631; --ink:#E7ECF2; --muted:#9AA6B4; --faint:#6F7B89; --line:#2A3542;
+  --accent:#86A2FF; --accent-ink:#0B1530; --accent-soft:#1E2A4D;
+  --f1:#86A2FF; --f2:#6E8CF2; --f3:#5875DE; --f4:#4660C2; --f5:#36499A;
+  --good:#5CC98A; --good-soft:#163526; --warn:#F0AE55; --warn-soft:#3A2A13; --bad:#F2857E; --bad-soft:#3D1D1B; color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
-.wrap{max-width:980px;margin:0 auto;padding-block:24px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
-h1,h2{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
-h1{font-size:clamp(26px,5vw,36px)}
-h2{font-size:19px}
-.eyebrow{font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-header{display:flex;flex-wrap:wrap;gap:12px;align-items:end;justify-content:space-between}
-header .sub{color:var(--muted);margin-top:4px}
-.status{font:12px var(--mono);color:var(--muted)}
-.status.err{color:var(--bad)}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
+h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1{font-size:clamp(24px,4.2vw,32px)} h2{font-size:18px} h3{font-size:15px}
+.eyebrow{font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)} .num{font-variant-numeric:tabular-nums}
 button,select,input,textarea{font:inherit;color:inherit}
-.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:500}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:end;justify-content:space-between}
+.top .sub{color:var(--muted);font-size:14px;margin-top:2px}
+.top-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.status{font:12px var(--mono);color:var(--muted)} .status.err{color:var(--bad)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:500;font-size:14px}
+.btn:hover{border-color:var(--muted)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .btn.danger{color:var(--bad);border-color:var(--bad)}
-.btn:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.pulse{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.tile{background:var(--surface);padding:14px 16px;display:grid;gap:4px}
-.tile .n{font:600 28px/1.1 var(--display);font-variant-numeric:tabular-nums}
-.tile .l{font-size:12px;color:var(--muted)}
-.meter{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
-.meter i{display:block;height:100%;background:var(--accent)}
-.goal-edit{width:3.2em;border:1px solid var(--line);border-radius:6px;background:var(--bg);padding:0 4px;font:12px var(--mono)}
-.sources{display:grid;gap:8px}
-.srow{display:grid;grid-template-columns:110px 1fr 70px;gap:10px;align-items:center;font-size:13px}
-.srow .bar{height:10px;background:var(--line);border-radius:5px;overflow:hidden}
-.srow .bar i{display:block;height:100%;background:var(--accent)}
-.srow .v{font:12px var(--mono);text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
-.section{display:grid;gap:12px}
-.section-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
-form.panel{display:grid;gap:12px}
-.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
-label{display:grid;gap:4px;font-size:12px;color:var(--muted);font-weight:500}
-input,select,textarea{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 10px;font-size:15px;min-width:0;width:100%}
-textarea{min-height:70px;resize:vertical}
-.row-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
-.filters{display:flex;flex-wrap:wrap;gap:6px}
-.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px;cursor:pointer}
+.tabs{display:flex;gap:4px;background:var(--sunk);padding:4px;border-radius:10px;width:max-content;max-width:100%;overflow-x:auto}
+.tab{border:0;background:none;padding:7px 14px;border-radius:7px;cursor:pointer;font-weight:500;font-size:14px;color:var(--muted);white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .08)}
+
+/* KPI strip */
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.kpi{padding:14px 16px;display:grid;gap:2px;border-left:1px solid var(--line);min-width:0}
+.kpi:first-child{border-left:0}
+.kpi .l{font-size:12px;color:var(--muted)}
+.kpi .n{font:600 28px/1.15 var(--display);font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12px;color:var(--muted)}
+.kpi.warn .n{color:var(--warn)} .kpi.bad .n{color:var(--bad)} .kpi.good .n{color:var(--good)}
+.meter{height:5px;border-radius:3px;background:var(--sunk);overflow:hidden;margin-top:4px}
+.meter i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.goal-edit{width:3.4em;border:1px solid var(--line);border-radius:6px;background:var(--bg);padding:0 4px;font:12px var(--mono)}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.kpi:nth-child(4){border-left:0}.kpi:nth-child(n+4){border-top:1px solid var(--line)}}
+@media (max-width:520px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi{border-left:1px solid var(--line)!important;border-top:1px solid var(--line)}.kpi:nth-child(odd){border-left:0!important}.kpi:nth-child(-n+2){border-top:0}}
+
+/* overview grid */
+.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:grid;gap:20px;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;gap:14px;min-width:0}
+.phead{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;justify-content:space-between}
+.phead .hint{font-size:12px;color:var(--muted)}
+
+/* funnel */
+.funnel{display:grid;gap:8px}
+.frow{display:grid;grid-template-columns:120px minmax(0,1fr) 92px;gap:10px;align-items:center;font-size:14px}
+.frow .bar{height:26px;background:var(--sunk);border-radius:6px;overflow:hidden}
+.frow .bar i{display:block;height:100%;border-radius:4px;min-width:3px}
+.frow .v{font:500 13px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.frow .v small{display:block;color:var(--muted);font-weight:400;font-size:11px}
+@media (max-width:520px){.frow{grid-template-columns:92px minmax(0,1fr) 72px}}
+
+/* charts */
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.chart text{fill:var(--muted);font:11px var(--mono)}
+.chart .grid line{stroke:var(--line);stroke-width:1}
+.chart .goal{stroke:var(--warn);stroke-width:1.5;stroke-dasharray:4 4}
+.chart .goal-l{fill:var(--warn)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.tip{position:fixed;z-index:20;pointer-events:none;background:var(--ink);color:var(--bg);font:12px/1.4 var(--body);padding:6px 9px;border-radius:6px;max-width:260px;box-shadow:0 4px 14px rgb(0 0 0 / .18)}
+.tip b{font-weight:600}
+
+/* company outcomes */
+.co-rows{display:grid;gap:7px}
+.co-row{display:grid;grid-template-columns:118px minmax(0,1fr) 34px;gap:10px;align-items:center;font-size:13px}
+.co-row .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stack{display:flex;gap:2px;height:14px}
+.stack i{display:block;height:100%;border-radius:3px;min-width:4px}
+.co-row .t{font:12px var(--mono);text-align:right;color:var(--muted)}
+.s-wait{background:var(--f4)} .s-review{background:var(--f2)} .s-adv{background:var(--good)} .s-rej{background:var(--bad)}
+
+/* waiting on you */
+.blockers{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;font-size:13px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip b{font:600 12px var(--mono)}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.list{display:grid;gap:8px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;align-items:start}
-.card.due{border-left:4px solid var(--warn)}
-.card .co{font-weight:600}
-.card .ro{color:var(--muted)}
-.meta{display:flex;flex-wrap:wrap;gap:6px 12px;font:12px var(--mono);color:var(--muted);grid-column:1/-1}
-.meta a{color:var(--accent)}
-.pill{font:500 11px var(--mono);padding:2px 8px;border-radius:999px;background:var(--line);color:var(--ink);white-space:nowrap}
-.pill.visa-yes{background:var(--accent-soft);color:var(--good)}
-.pill.visa-no{background:var(--bad-soft);color:var(--bad)}
-.pill.due{background:var(--warn-soft);color:var(--warn)}
-.stage-sel{width:auto;font-size:13px;padding:4px 8px}
-.card .notes{grid-column:1/-1;font-size:13px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
-.card .acts{grid-column:1/-1;display:flex;gap:6px;justify-content:flex-end}
-.link-btn{background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:2px 4px}
-.link-btn.bad{color:var(--bad)}
-.empty{color:var(--muted);text-align:center;padding:28px 12px;border:1px dashed var(--line);border-radius:12px}
-.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;font-size:14px}
-.rules div{display:grid;gap:2px}
-.rules b{font-family:var(--display);font-size:15px}
-@media (prefers-reduced-motion:no-preference){.card{transition:border-color .15s}}
+.wlist{display:grid;gap:0;max-height:430px;overflow:auto;margin:0 -6px;padding:0 6px}
+.witem{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+.witem:first-child{border-top:0}
+.witem .r{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.witem .why{grid-column:1/-1;font-size:12px;color:var(--muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pill{font:500 11px var(--mono);padding:2px 8px;border-radius:999px;background:var(--sunk);color:var(--ink);white-space:nowrap;align-self:start}
+.pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.good{background:var(--good-soft);color:var(--good)} .pill.acc{background:var(--accent-soft);color:var(--accent)}
+
+/* activity */
+.act{display:grid;gap:0}
+.act div{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:13px}
+.act div:first-child{border-top:0}
+.act time{font:12px var(--mono);color:var(--muted)}
+
+/* board */
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,1fr);gap:12px;overflow-x:auto;padding-bottom:8px;align-items:start}
+.colm{background:var(--sunk);border-radius:12px;padding:10px;display:grid;gap:8px;align-content:start;min-height:120px}
+.colm.over{outline:2px dashed var(--accent);outline-offset:-2px}
+.colm h3{display:flex;justify-content:space-between;align-items:center;font-size:14px;padding:2px 4px}
+.colm h3 span{font:500 12px var(--mono);color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:10px 11px;display:grid;gap:4px;cursor:grab;font-size:13px}
+.card:active{cursor:grabbing}
+.card .co{font-weight:600;font-size:14px}
+.card .ro{color:var(--muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.card .meta{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;font:12px var(--mono);color:var(--muted)}
+.more{border:0;background:none;color:var(--accent);cursor:pointer;font-size:13px;padding:4px}
+
+/* table */
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tools input[type=search]{flex:1 1 220px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 12px;font-size:14px;min-width:0}
+.tools label{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:760px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap;position:sticky;top:0;background:var(--surface)}
+th[aria-sort] ::after{content:""} th[aria-sort="ascending"]::after{content:" ↑"} th[aria-sort="descending"]::after{content:" ↓"}
+tbody tr{cursor:pointer} tbody tr:hover{background:var(--sunk)}
+td.num{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:12px}
+.empty{color:var(--muted);text-align:center;padding:28px 12px;border:1px dashed var(--line);border-radius:12px;font-size:14px}
+
+/* drawer */
+dialog{border:0;padding:0;background:transparent;max-width:100vw;max-height:100vh}
+dialog::backdrop{background:rgb(10 15 25 / .45)}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100vw);background:var(--surface);color:var(--ink);overflow:auto;padding:20px max(20px,env(safe-area-inset-right,0px)) 32px 20px;padding-top:max(20px,env(safe-area-inset-top,0px));display:grid;gap:14px;align-content:start;border-left:1px solid var(--line)}
+.drawer .x{justify-self:end}
+.fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:520px){.fgrid{grid-template-columns:minmax(0,1fr)}}
+.drawer label{display:grid;gap:4px;font-size:12px;color:var(--muted);font-weight:500}
+.drawer input,.drawer select,.drawer textarea{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 10px;font-size:14px;width:100%;min-width:0}
+.drawer textarea{min-height:120px;resize:vertical}
+.row-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}
+.view[hidden]{display:none!important}
+@media (prefers-reduced-motion:no-preference){.card,.chip,.btn,.tab{transition:background-color .15s,border-color .15s}}
 </style>
 
 <div class="wrap">
-  <header>
+  <header class="top">
     <div>
       <div class="eyebrow">Job search</div>
       <h1>Job Hunt Tracker</h1>
-      <div class="sub">Every application, referral and recruiter call in one place</div>
+      <div class="sub" id="subline">Loading your pipeline…</div>
     </div>
-    <div style="display:grid;gap:6px;justify-items:end">
-      <button class="btn primary" id="addBtn" type="button">+ Add application</button>
-      <span class="status" id="status">Connecting to your tracker…</span>
+    <div class="top-actions">
+      <span class="status" id="status">Connecting…</span>
+      <button class="btn primary" id="addBtn" type="button">+ Add role</button>
     </div>
   </header>
 
-  <section class="pulse" aria-label="This week">
-    <div class="tile"><span class="l">Total applied</span><span class="n" id="totApplied">0</span><span class="l" id="totSub">all time</span></div>
-    <div class="tile"><span class="l">Applied this week</span><span class="n" id="wkApplied">0</span>
-      <div class="meter"><i id="wkMeter" style="width:0%"></i></div>
-      <span class="l">goal <input class="goal-edit" id="goalApps" type="number" min="1" value="15" aria-label="Weekly application goal"></span></div>
-    <div class="tile"><span class="l">Referrals asked this week</span><span class="n" id="wkRef">0</span>
-      <div class="meter"><i id="refMeter" style="width:0%"></i></div>
-      <span class="l">goal <input class="goal-edit" id="goalRefs" type="number" min="1" value="5" aria-label="Weekly referral goal"></span></div>
-    <div class="tile"><span class="l">Response rate</span><span class="n" id="rate">–</span><span class="l" id="rateSub">screens ÷ applied</span></div>
-    <div class="tile"><span class="l">In interviews</span><span class="n" id="inInt">0</span><span class="l" id="offers">0 offers</span></div>
-    <div class="tile"><span class="l">Rejections</span><span class="n" id="rejN" style="color:var(--bad)">0</span><span class="l" id="rejSub">0% of applied</span></div>
-    <div class="tile"><span class="l">No reply, 7+ days</span><span class="n" id="dueN">0</span><span class="l">applied a week ago or more</span></div>
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button class="tab" role="tab" id="tab-overview" data-view="overview" aria-selected="true">Overview</button>
+    <button class="tab" role="tab" id="tab-board" data-view="board" aria-selected="false">Board</button>
+    <button class="tab" role="tab" id="tab-roles" data-view="roles" aria-selected="false">All roles</button>
+  </nav>
+
+  <section class="kpis" aria-label="Summary">
+    <div class="kpi"><span class="l">Total applied</span><span class="n" id="kTotal">0</span><span class="s" id="kTotalS">all time</span></div>
+    <div class="kpi"><span class="l">This week</span><span class="n" id="kWeek">0</span>
+      <div class="meter"><i id="kWeekM" style="width:0%"></i></div>
+      <span class="s">goal <input class="goal-edit" id="goalApps" type="number" min="1" value="15" aria-label="Weekly application goal"></span></div>
+    <div class="kpi"><span class="l">Heard back</span><span class="n" id="kHeard">–</span><span class="s" id="kHeardS">any reply ÷ applied</span></div>
+    <div class="kpi good"><span class="l">Screens &amp; interviews</span><span class="n" id="kScreen">0</span><span class="s" id="kScreenS">0 offers</span></div>
+    <div class="kpi warn"><span class="l">No reply, 7+ days</span><span class="n" id="kWait">0</span><span class="s" id="kWaitS">applied a week ago or more</span></div>
+    <div class="kpi bad"><span class="l">Rejected</span><span class="n" id="kRej">0</span><span class="s" id="kRejS">0% of applied</span></div>
   </section>
 
-  <section class="section">
-    <div class="section-head"><h2>What's working</h2><span class="eyebrow">response rate by source</span></div>
-    <div class="panel sources" id="sources"></div>
-  </section>
-
-  <form class="panel" id="form" hidden>
-    <div class="section-head"><h2 id="formTitle">Add application</h2></div>
-    <div class="fgrid">
-      <label>Company<input id="f-company" required placeholder="e.g. Example Corp"></label>
-      <label>Role<input id="f-role" required placeholder="Software Engineer II, Frontend"></label>
-      <label>Job link<input id="f-url" type="url" placeholder="https://…"></label>
-      <label>Source<select id="f-source">
-        <option>Referral</option><option>Recruiter reached out</option><option>Company site</option><option>LinkedIn Easy Apply</option><option>Job board</option><option>Agency / Vendor</option></select></label>
-      <label>Stage<select id="f-stage"></select></label>
-      <label>Sponsors visa?<select id="f-visa"><option value="unknown">Unknown</option><option value="yes">Yes (H-1B / E-Verify)</option><option value="no">No sponsorship</option></select></label>
-      <label>Date applied<input id="f-applied" type="date"></label>
-      <label>Next action date<input id="f-next" type="date"></label>
-      <label>Contact / referrer<input id="f-contact" placeholder="Name, title"></label>
-      <label>Resume version<input id="f-resume" placeholder="e.g. frontend-v3"></label>
+  <!-- OVERVIEW -->
+  <div class="view" id="view-overview">
+    <div class="grid">
+      <div class="col">
+        <section class="panel" aria-labelledby="h-funnel">
+          <div class="phead"><h2 id="h-funnel">Where applications stand</h2><span class="hint">each bar is a share of everything applied</span></div>
+          <div class="funnel" id="funnel"></div>
+        </section>
+        <section class="panel" aria-labelledby="h-cad">
+          <div class="phead"><h2 id="h-cad">Applications per day</h2><span class="hint" id="cadHint">last 21 days</span></div>
+          <div id="cadence"></div>
+        </section>
+        <section class="panel" aria-labelledby="h-co">
+          <div class="phead"><h2 id="h-co">Outcomes by company</h2><span class="hint">top 12 by applications</span></div>
+          <div class="legend"><span><i class="s-wait"></i>No reply yet</span><span><i class="s-review"></i>In review</span><span><i class="s-adv"></i>Screen or later</span><span><i class="s-rej"></i>Rejected</span></div>
+          <div class="co-rows" id="companies"></div>
+        </section>
+      </div>
+      <div class="col">
+        <section class="panel" aria-labelledby="h-you">
+          <div class="phead"><h2 id="h-you">Waiting on you</h2><span class="hint" id="youHint"></span></div>
+          <div class="blockers" id="blockers"></div>
+          <div class="wlist" id="waitlist"></div>
+        </section>
+        <section class="panel" aria-labelledby="h-act">
+          <div class="phead"><h2 id="h-act">Recent activity</h2></div>
+          <div class="act" id="activity"></div>
+        </section>
+      </div>
     </div>
-    <label>Notes<textarea id="f-notes" placeholder="Salary range, interview rounds, what you said, next step…"></textarea></label>
+  </div>
+
+  <!-- BOARD -->
+  <div class="view" id="view-board" hidden>
+    <div class="phead" style="margin-bottom:10px"><span class="hint">Drag a card to change its stage. Closed roles collapse into the last column.</span></div>
+    <div class="board" id="board"></div>
+  </div>
+
+  <!-- ROLES -->
+  <div class="view" id="view-roles" hidden>
+    <div style="display:grid;gap:12px">
+      <div class="tools">
+        <input type="search" id="q" placeholder="Search company, role, location, notes" aria-label="Search roles">
+        <select id="stageF" aria-label="Filter by stage" class="btn"></select>
+        <label><input type="checkbox" id="showSkipped"> Show skipped</label>
+      </div>
+      <div class="tablewrap"><table>
+        <thead><tr>
+          <th data-k="company">Company</th><th data-k="role">Role</th><th data-k="stage">Stage</th>
+          <th data-k="applied" aria-sort="descending">Applied</th><th data-k="age">Days</th><th data-k="location">Location</th><th data-k="pay">Pay</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <div class="muted" style="font-size:13px" id="rowCount"></div>
+    </div>
+  </div>
+</div>
+
+<div class="tip" id="tip" hidden></div>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <form class="drawer" id="form" method="dialog">
+    <button class="btn x" type="button" id="closeBtn" aria-label="Close">Close</button>
+    <div><div class="eyebrow" id="dlgEyebrow">New role</div><h2 id="dlgTitle">Add role</h2></div>
+    <div class="fgrid">
+      <label>Company<input id="f-company" required></label>
+      <label>Role<input id="f-role" required></label>
+      <label>Stage<select id="f-stage"></select></label>
+      <label>Date applied<input id="f-applied" type="date"></label>
+      <label>Location<input id="f-location"></label>
+      <label>Pay<input id="f-pay" placeholder="$150K-$200K"></label>
+      <label>Source<input id="f-source" placeholder="Company site, referral…"></label>
+      <label>Next action<input id="f-next" type="date"></label>
+      <label>Contact<input id="f-contact"></label>
+      <label>Resume used<input id="f-resume"></label>
+    </div>
+    <label>Job link<input id="f-url" type="url" placeholder="https://"></label>
+    <label>Notes<textarea id="f-notes"></textarea></label>
+    <div id="dlgLink"></div>
     <div class="row-actions">
-      <button class="btn" type="button" id="cancelBtn">Cancel</button>
-      <button class="btn primary" type="submit" id="saveBtn">Save</button>
+      <button class="btn danger" type="button" id="delBtn">Delete</button>
+      <span style="display:flex;gap:8px"><button class="btn" type="button" id="cancelBtn">Cancel</button><button class="btn primary" type="submit" id="saveBtn">Save</button></span>
     </div>
   </form>
-
-  <section class="section">
-    <div class="section-head"><h2>Pipeline</h2><div class="filters" id="filters"></div></div>
-    <div class="list" id="list"><div class="empty">Your applications will appear here. Tap <b>+ Add application</b> to log the first one.</div></div>
-  </section>
-
-  <section class="section">
-    <div class="section-head"><h2>House rules</h2></div>
-    <div class="panel rules">
-      <div><b>Log it within 5 minutes</b><span>Every application, referral ask and recruiter call goes here the same day.</span></div>
-      <div><b>Follow up on day 7</b><span>Moving a card to Applied sets the next action a week out. Add new info every time you nudge.</span></div>
-      <div><b>Personal devices only</b><span>Keep the search off your current employer's laptop, Wi-Fi and email.</span></div>
-      <div><b>Check visa before tailoring</b><span>Search the employer's past H-1B filings first. Mark "No sponsorship" and move on.</span></div>
-    </div>
-  </section>
-</div>
+</dialog>
 
 <script>
 const STAGES=["Wishlist","Referral asked","Referred","Applied","Under review","Recruiter screen","Interviewing","Offer","Rejected","Ghosted","Withdrawn","Skipped"];
 const NOT_APPLIED=new Set(["Wishlist","Referral asked","Skipped"]);
-const RESPONDED=new Set(["Recruiter screen","Interviewing","Offer"]);
+const ADVANCED=new Set(["Recruiter screen","Interviewing","Offer"]);
+const CLOSED=new Set(["Rejected","Ghosted","Withdrawn"]);
+const BOARD_COLS=[["Wishlist",["Wishlist","Referral asked"]],["Applied",["Applied","Referred"]],["In review",["Under review"]],["Screen",["Recruiter screen"]],["Interviewing",["Interviewing"]],["Offer",["Offer"]],["Closed",["Rejected","Ghosted","Withdrawn"]]];
+const COL_DROP={"Wishlist":"Wishlist","Applied":"Applied","In review":"Under review","Screen":"Recruiter screen","Interviewing":"Interviewing","Offer":"Offer","Closed":"Rejected"};
+const BLOCKERS=[
+  ["Apple ID",/apple id/i],["CAPTCHA",/captcha/i],["Login",/password|sign[- ]?in|log ?in|2fa|verification code/i],
+  ["Your answer",/your (own )?answer|ask the candidate|question|tick|certif|confirm with/i],["On hold",/\bhold\b|approval|slot|10[- ]?(active )?cap|active cap|caps? an account|\d+ active applications|limit/i]];
 const $=id=>document.getElementById(id);
-const state={apps:[],filter:"Active",db:null,editing:null,writable:true};
-const today=()=>new Date().toLocaleDateString("en-CA");
+const S={apps:[],db:null,writable:true,editing:null,view:"overview",blocker:null,sort:["applied",-1]};
+const todayStr=()=>new Date().toLocaleDateString("en-CA");
 const addDays=(d,n)=>{const x=new Date(d+"T12:00:00");x.setDate(x.getDate()+n);return x.toLocaleDateString("en-CA")};
-const weekStart=()=>{const d=new Date();const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return d.toLocaleDateString("en-CA")};
+const daysBetween=(a,b)=>Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/864e5);
+const weekStart=()=>{const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));return d.toLocaleDateString("en-CA")};
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const fmt=d=>d?new Date(d+"T12:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric"}):"";
+const fmt=d=>d?new Date(d.slice(0,10)+"T12:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric"}):"";
+const pct=(a,b)=>b?Math.round(a/b*100):0;
 
+const isLog=a=>/-skips$/.test(a.id)||!a.company;
+const isApp=a=>!isLog(a);
+const applied=a=>isApp(a)&&!NOT_APPLIED.has(a.stage);
+const advanced=a=>ADVANCED.has(a.stage)||(a.everScreened&&a.stage!=="Wishlist");
+const age=a=>a.applied?daysBetween(a.applied.slice(0,10),todayStr()):null;
+const waiting=a=>["Applied","Referred","Under review"].includes(a.stage)&&a.applied&&age(a)>=7;
+const blockerOf=a=>{if(a.stage!=="Wishlist"&&a.stage!=="Referral asked")return null;const t=(a.notes||"")+" "+(a.notes2||"");for(const [n,re] of BLOCKERS)if(re.test(t))return n;return /block|waiting on|needs? (you|the candidate)/i.test(t)?"Other":null};
+function stagePill(s){const c=s==="Offer"||s==="Interviewing"||s==="Recruiter screen"?"good":s==="Rejected"?"bad":s==="Ghosted"||s==="Withdrawn"||s==="Skipped"?"":s==="Wishlist"||s==="Referral asked"?"":"acc";return `<span class="pill ${c}">${esc(s)}</span>`}
+function agePill(a){const d=age(a);if(d==null||!["Applied","Referred","Under review"].includes(a.stage))return "";return d>=21?`<span class="pill">${d}d, likely ghosted</span>`:d>=7?`<span class="pill warn">${d}d no reply</span>`:`<span class="pill">${d}d</span>`}
+
+/* ---------- tooltip ---------- */
+const tip=$("tip");
+document.addEventListener("pointermove",e=>{const t=e.target.closest("[data-tip]");if(!t){tip.hidden=true;return}tip.innerHTML=t.dataset.tip;tip.hidden=false;const w=tip.offsetWidth,h=tip.offsetHeight;let x=e.clientX+14,y=e.clientY+14;if(x+w>innerWidth-8)x=e.clientX-w-14;if(y+h>innerHeight-8)y=e.clientY-h-14;tip.style.left=x+"px";tip.style.top=y+"px"});
+document.addEventListener("pointerleave",()=>tip.hidden=true);
+
+/* ---------- KPIs ---------- */
+function renderKpis(){
+  const A=S.apps.filter(isApp),ap=A.filter(applied),ws=weekStart();
+  const heard=ap.filter(a=>a.stage!=="Applied"&&a.stage!=="Referred");
+  const adv=ap.filter(advanced),off=ap.filter(a=>a.stage==="Offer").length,rej=ap.filter(a=>a.stage==="Rejected");
+  const wk=ap.filter(a=>(a.applied||"")>=ws).length,goal=+$("goalApps").value||15;
+  $("kTotal").textContent=ap.length;
+  $("kTotalS").textContent=`${new Set(ap.map(a=>a.company)).size} companies · ${A.filter(a=>a.stage==="Wishlist").length} on wishlist`;
+  $("kWeek").textContent=wk;$("kWeekM").style.width=Math.min(100,wk/goal*100)+"%";
+  $("kHeard").textContent=ap.length?pct(heard.length,ap.length)+"%":"–";$("kHeardS").textContent=`${heard.length} of ${ap.length} got any reply`;
+  $("kScreen").textContent=adv.length;$("kScreenS").textContent=`${pct(adv.length,ap.length)}% of applied · ${off} offer${off===1?"":"s"}`;
+  const w=A.filter(waiting);$("kWait").textContent=w.length;$("kWaitS").textContent=`${w.filter(a=>age(a)>=21).length} past 3 weeks`;
+  const rw=rej.filter(a=>(a.rejected||(a.updated||"").slice(0,10))>=ws).length;
+  $("kRej").textContent=rej.length;$("kRejS").textContent=`${pct(rej.length,ap.length)}% of applied · ${rw} this week`;
+  const blocked=A.filter(blockerOf).length;
+  $("subline").textContent=`${ap.length} applied · ${A.filter(a=>["Applied","Referred","Under review"].includes(a.stage)).length} open · ${adv.length} in conversation · ${blocked} roles waiting on you`;
+}
+
+/* ---------- funnel ---------- */
+function renderFunnel(){
+  const ap=S.apps.filter(applied),n=ap.length;
+  const heard=ap.filter(a=>a.stage!=="Applied"&&a.stage!=="Referred").length;
+  const steps=[
+    ["Applied",n,"--f5","everything submitted"],
+    ["Heard back",heard,"--f4","any reply, including rejections and portal reviews"],
+    ["Screen",ap.filter(advanced).length,"--f3","recruiter screen or later"],
+    ["Interviewing",ap.filter(a=>a.stage==="Interviewing"||a.stage==="Offer").length,"--f2","interview loop or later"],
+    ["Offer",ap.filter(a=>a.stage==="Offer").length,"--f1","offer received"]];
+  $("funnel").innerHTML=n?steps.map(([l,v,c,d],i)=>{const prev=i?steps[i-1][1]:v;const conv=i?`${pct(v,prev)}% of ${steps[i-1][0].toLowerCase()}`:"";
+    return `<div class="frow" data-tip="<b>${l}: ${v}</b><br>${d}<br>${pct(v,n)}% of applied${conv?" · "+conv:""}"><span>${l}</span><div class="bar"><i style="width:${Math.max(v?1.2:0,v/n*100)}%;background:var(${c})"></i></div><span class="v">${v}<small>${pct(v,n)}%</small></span></div>`}).join("")
+    :`<div class="empty">Funnel appears after the first application is logged.</div>`;
+}
+
+/* ---------- cadence (svg bar chart, one scale) ---------- */
+function renderCadence(){
+  const days=21,end=todayStr(),list=[];for(let i=days-1;i>=0;i--)list.push(addDays(end,-i));
+  const cnt=Object.fromEntries(list.map(d=>[d,0]));S.apps.filter(applied).forEach(a=>{const d=(a.applied||"").slice(0,10);if(d in cnt)cnt[d]++});
+  const goal=(+$("goalApps").value||15)/7,max=Math.max(4,Math.ceil(Math.max(goal,...Object.values(cnt))/2)*2);
+  const W=640,H=200,L=28,R=8,T=10,B=26,pw=W-L-R,ph=H-T-B,bw=pw/days,y=v=>T+ph-(v/max)*ph;
+  const ticks=[0,max/2,max].map(v=>Math.round(v));
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Applications per day, last ${days} days"><g class="grid">`;
+  ticks.forEach(t=>{s+=`<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}"/><text x="${L-6}" y="${y(t)+4}" text-anchor="end">${t}</text>`});
+  s+=`</g>`;
+  list.forEach((d,i)=>{const v=cnt[d],x=L+i*bw+bw*.18,w=bw*.64,h=y(0)-y(v),dt=new Date(d+"T12:00:00");
+    const lab=dt.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+    if(v)s+=`<path d="M${x},${y(0)} v${-(h-4)} q0,-4 4,-4 h${w-8} q4,0 4,4 v${h-4} z" fill="var(--accent)"/>`;
+    s+=`<rect x="${L+i*bw}" y="${T}" width="${bw}" height="${ph}" fill="transparent" data-tip="<b>${lab}</b><br>${v} application${v===1?"":"s"}"/>`;
+    if(i%3===0||i===days-1)s+=`<text x="${x+w/2}" y="${H-8}" text-anchor="middle">${dt.toLocaleDateString(undefined,{month:"short",day:"numeric"})}</text>`});
+  s+=`<line class="goal" x1="${L}" x2="${W-R}" y1="${y(goal)}" y2="${y(goal)}"/><text class="goal-l" x="${W-R}" y="${y(goal)-5}" text-anchor="end">goal ${goal.toFixed(1)}/day</text></svg>`;
+  $("cadence").innerHTML=s;
+  const tot=Object.values(cnt).reduce((a,b)=>a+b,0);$("cadHint").textContent=`${tot} in the last ${days} days`;
+}
+
+/* ---------- companies ---------- */
+function renderCompanies(){
+  const by={};S.apps.filter(applied).forEach(a=>{const k=a.company.trim();const o=by[k]=by[k]||{n:0,wait:0,review:0,adv:0,rej:0};o.n++;
+    if(a.stage==="Rejected"||a.stage==="Ghosted"||a.stage==="Withdrawn")o.rej++;else if(advanced(a))o.adv++;else if(a.stage==="Under review")o.review++;else o.wait++});
+  const rows=Object.entries(by).sort((x,y)=>y[1].n-x[1].n||x[0].localeCompare(y[0])).slice(0,12);
+  const max=rows.length?rows[0][1].n:1;
+  $("companies").innerHTML=rows.length?rows.map(([c,o])=>{const seg=(k,cls,lab)=>o[k]?`<i class="${cls}" style="flex:${o[k]} 0 0"></i>`:"";
+    return `<div class="co-row" data-tip="<b>${esc(c)}</b>: ${o.n} applied<br>${o.wait} no reply · ${o.review} in review · ${o.adv} screen+ · ${o.rej} rejected/closed"><span class="nm">${esc(c)}</span><div class="stack" style="width:${o.n/max*100}%">${seg("wait","s-wait")}${seg("review","s-review")}${seg("adv","s-adv")}${seg("rej","s-rej")}</div><span class="t">${o.n}</span></div>`}).join("")
+    :`<div class="empty">Companies show up here once you apply.</div>`;
+}
+
+/* ---------- waiting on you ---------- */
+function renderWaiting(){
+  const items=S.apps.filter(isApp).map(a=>[a,blockerOf(a)]).filter(x=>x[1]);
+  const counts={};items.forEach(([,b])=>counts[b]=(counts[b]||0)+1);
+  const order=[...BLOCKERS.map(b=>b[0]),"Other"].filter(b=>counts[b]);
+  if(S.blocker&&!counts[S.blocker])S.blocker=null;
+  $("blockers").innerHTML=`<button class="chip" type="button" data-b="" aria-pressed="${!S.blocker}">All <b>${items.length}</b></button>`+order.map(b=>`<button class="chip" type="button" data-b="${esc(b)}" aria-pressed="${S.blocker===b}">${esc(b)} <b>${counts[b]}</b></button>`).join("");
+  const shown=items.filter(([,b])=>!S.blocker||b===S.blocker);
+  $("youHint").textContent=items.length?"unblock these and Claude applies":"";
+  $("waitlist").innerHTML=shown.length?shown.map(([a,b])=>`<div class="witem" data-open="${esc(a.id)}" style="cursor:pointer"><div style="min-width:0"><b>${esc(a.company)}</b> <div class="r">${esc(a.role||"")}</div></div><span class="pill warn">${esc(b)}</span><div class="why">${esc((a.notes||"").slice(0,220))}</div></div>`).join("")
+    :`<div class="empty">Nothing is waiting on you. Claude keeps applying on its own.</div>`;
+}
+$("blockers").addEventListener("click",e=>{const c=e.target.closest("[data-b]");if(!c)return;S.blocker=c.dataset.b||null;renderWaiting()});
+
+/* ---------- activity ---------- */
+function renderActivity(){
+  const ev=[];S.apps.filter(isApp).forEach(a=>{
+    if(a.applied&&applied(a))ev.push([a.applied.slice(0,10),`Applied to <b>${esc(a.company)}</b> · ${esc(a.role||"")}`]);
+    if(a.stage==="Rejected"&&(a.rejected||a.updated))ev.push([(a.rejected||a.updated).slice(0,10),`Rejected by <b>${esc(a.company)}</b>`]);
+    if(ADVANCED.has(a.stage)&&a.updated)ev.push([a.updated.slice(0,10),`${esc(a.stage)} with <b>${esc(a.company)}</b>`]);
+    if(a.stage==="Wishlist"&&a.created)ev.push([a.created.slice(0,10),`Added <b>${esc(a.company)}</b> to wishlist`])});
+  ev.sort((x,y)=>y[0].localeCompare(x[0]));
+  $("activity").innerHTML=ev.length?ev.slice(0,12).map(([d,t])=>`<div><time>${fmt(d)}</time><span>${t}</span></div>`).join(""):`<div class="empty">Activity appears as roles move.</div>`;
+}
+
+/* ---------- board ---------- */
+function renderBoard(){
+  const A=S.apps.filter(isApp);
+  $("board").innerHTML=BOARD_COLS.map(([name,st])=>{let items=A.filter(a=>st.includes(a.stage));
+    items.sort((x,y)=>(y.applied||y.created||"").localeCompare(x.applied||x.created||""));
+    const lim=name==="Closed"||name==="Wishlist"?12:40,extra=items.length-lim;
+    return `<div class="colm" data-col="${esc(name)}"><h3>${esc(name)} <span>${items.length}</span></h3>${items.slice(0,lim).map(cardHtml).join("")}${extra>0?`<button class="more" type="button" data-more="${esc(st[0])}">+${extra} more in All roles</button>`:""}${items.length?"":`<div class="muted" style="font-size:12px;padding:4px">Drop a card here</div>`}</div>`}).join("");
+}
+function cardHtml(a){const b=blockerOf(a);return `<article class="card" draggable="${S.writable}" data-id="${esc(a.id)}" data-open="${esc(a.id)}"><div class="co">${esc(a.company)}</div><div class="ro">${esc(a.role||"")}</div><div class="meta">${a.applied&&applied(a)?`<span>${fmt(a.applied)}</span>`:""}${agePill(a)}${b?`<span class="pill warn">${esc(b)}</span>`:""}${a.stage==="Rejected"?`<span class="pill bad">rejected</span>`:""}${a.location?`<span>${esc(a.location.split(/[;,]/)[0].slice(0,22))}</span>`:""}</div></article>`}
+let dragId=null;
+$("board").addEventListener("dragstart",e=>{const c=e.target.closest(".card");if(!c)return;dragId=c.dataset.id;e.dataTransfer.effectAllowed="move"});
+$("board").addEventListener("dragover",e=>{const c=e.target.closest(".colm");if(!c||!dragId)return;e.preventDefault();document.querySelectorAll(".colm.over").forEach(x=>x!==c&&x.classList.remove("over"));c.classList.add("over")});
+$("board").addEventListener("dragleave",e=>{const c=e.target.closest(".colm");if(c&&!c.contains(e.relatedTarget))c.classList.remove("over")});
+$("board").addEventListener("drop",async e=>{const c=e.target.closest(".colm");if(!c||!dragId)return;e.preventDefault();c.classList.remove("over");const id=dragId;dragId=null;
+  const a=S.apps.find(x=>x.id===id),target=COL_DROP[c.dataset.col];if(!a||BOARD_COLS.find(b=>b[0]===c.dataset.col)[1].includes(a.stage))return;await setStage(a,target)});
+$("board").addEventListener("click",e=>{const m=e.target.closest("[data-more]");if(m){$("stageF").value=m.dataset.more;go("roles")}});
+
+/* ---------- table ---------- */
+function renderTable(){
+  const q=$("q").value.trim().toLowerCase(),sf=$("stageF").value,sk=$("showSkipped").checked;
+  let A=S.apps.filter(isApp).filter(a=>sk||a.stage!=="Skipped"||sf==="Skipped");
+  if(sf)A=A.filter(a=>a.stage===sf);
+  if(q)A=A.filter(a=>[a.company,a.role,a.location,a.notes,a.stage].join(" ").toLowerCase().includes(q));
+  const [k,dir]=S.sort,val=a=>k==="age"?(age(a)??-1):(a[k]||"").toString().toLowerCase();
+  A.sort((x,y)=>{const a=val(x),b=val(y);return (a<b?-1:a>b?1:0)*dir});
+  document.querySelectorAll("th[data-k]").forEach(th=>th.dataset.k===k?th.setAttribute("aria-sort",dir>0?"ascending":"descending"):th.removeAttribute("aria-sort"));
+  $("rows").innerHTML=A.map(a=>`<tr data-open="${esc(a.id)}"><td><b>${esc(a.company)}</b></td><td>${esc(a.role||"")}</td><td>${stagePill(a.stage||"")}</td><td class="num">${a.applied?esc(a.applied.slice(0,10)):""}</td><td class="num">${applied(a)&&age(a)!=null?age(a):""}</td><td>${esc((a.location||"").slice(0,40))}</td><td class="num">${esc((a.pay||"").slice(0,26))}</td></tr>`).join("")||`<tr><td colspan="7"><div class="empty" style="border:0">No roles match. Clear the search or pick another stage.</div></td></tr>`;
+  $("rowCount").textContent=`${A.length} role${A.length===1?"":"s"} shown`;
+}
+$("stageF").innerHTML=`<option value="">All stages</option>`+STAGES.map(s=>`<option>${s}</option>`).join("");
+["q","stageF","showSkipped"].forEach(id=>$(id).addEventListener("input",renderTable));
+document.querySelector("thead").addEventListener("click",e=>{const th=e.target.closest("th[data-k]");if(!th)return;S.sort=[th.dataset.k,S.sort[0]===th.dataset.k?-S.sort[1]:(th.dataset.k==="company"||th.dataset.k==="role"?1:-1)];renderTable()});
+
+/* ---------- drawer ---------- */
+const F=["company","role","stage","applied","location","pay","source","next","contact","resume","url","notes"];
 $("f-stage").innerHTML=STAGES.map(s=>`<option>${s}</option>`).join("");
-const FILTERS=["Active","Waiting 7d+","All",...STAGES];
-function renderFilters(){$("filters").innerHTML=FILTERS.map(f=>`<button type="button" class="chip" data-f="${esc(f)}" aria-pressed="${f===state.filter}">${esc(f)}</button>`).join("")}
-$("filters").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(!b)return;state.filter=b.dataset.f;renderFilters();renderList()});
+function openDrawer(a){S.editing=a?a.id:null;$("dlgTitle").textContent=a?a.company:"Add role";$("dlgEyebrow").textContent=a?(a.role||"Role"):"New role";
+  F.forEach(k=>$("f-"+k).value=(a?(k==="applied"||k==="next"?(a[k]||"").slice(0,10):a[k]):"")||"");if(!a)$("f-stage").value="Wishlist";
+  $("dlgLink").innerHTML=a&&a.url?`<a href="${esc(a.url)}" target="_blank" rel="noopener">Open posting ↗</a>`:"";
+  $("delBtn").hidden=!a||!S.writable;$("saveBtn").disabled=!S.writable;$("dlg").showModal()}
+document.addEventListener("click",e=>{const o=e.target.closest("[data-open]");if(o&&!e.target.closest("a")){const a=S.apps.find(x=>x.id===o.dataset.open);if(a)openDrawer(a)}});
+$("addBtn").onclick=()=>openDrawer(null);
+$("closeBtn").onclick=$("cancelBtn").onclick=()=>$("dlg").close();
+$("dlg").addEventListener("click",e=>{if(e.target===$("dlg"))$("dlg").close()});
+let delArm=false;
+$("delBtn").onclick=async()=>{if(!delArm){delArm=true;$("delBtn").textContent="Tap again to delete";setTimeout(()=>{delArm=false;$("delBtn").textContent="Delete"},4000);return}
+  delArm=false;$("delBtn").textContent="Delete";try{await S.db.collection("apps").doc(S.editing).delete();$("dlg").close();setStatus("Deleted")}catch(err){setStatus("Couldn't delete: "+(err&&err.message||"try again"),true)}};
+$("form").addEventListener("submit",async e=>{e.preventDefault();const prev=S.apps.find(a=>a.id===S.editing)||{};
+  const body={};F.forEach(k=>body[k]=$("f-"+k).value.trim());
+  if(!NOT_APPLIED.has(body.stage)&&!body.applied)body.applied=todayStr();
+  if(ADVANCED.has(body.stage)||prev.everScreened)body.everScreened=true;
+  if(body.stage==="Rejected"&&!prev.rejected)body.rejected=todayStr();
+  body.created=prev.created||todayStr();body.updated=new Date().toISOString();
+  const id=S.editing||("a"+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+  if(await write(id,body,!!S.editing))$("dlg").close()});
 
-function isApp(a){return !!a.company}
-function hasApplied(a){return isApp(a)&&!NOT_APPLIED.has(a.stage)&&(a.applied||["Applied","Under review","Recruiter screen","Interviewing","Offer","Rejected","Ghosted","Withdrawn","Referred"].includes(a.stage))}
-function isWaiting(a){return ["Applied","Under review","Referred"].includes(a.stage)&&a.applied&&a.applied<=addDays(today(),-7)}
-function isDue(a){return isWaiting(a)}
-function isActive(a){return isApp(a)&&!["Rejected","Ghosted","Withdrawn","Skipped"].includes(a.stage)}
-
-function renderStats(){
-  const A=state.apps, ws=weekStart();
-  const applied=A.filter(hasApplied);
-  $("totApplied").textContent=applied.length;
-  $("totSub").textContent=A.filter(a=>isApp(a)&&a.stage==="Wishlist").length+" on wishlist · "+A.filter(a=>isApp(a)&&a.stage==="Skipped").length+" skipped";
-  const wk=applied.filter(a=>(a.applied||"")>=ws).length;
-  const wkRef=A.filter(a=>a.source==="Referral"&&(a.created||"")>=ws).length;
-  const ga=+$("goalApps").value||15, gr=+$("goalRefs").value||5;
-  $("wkApplied").textContent=wk;$("wkMeter").style.width=Math.min(100,wk/ga*100)+"%";
-  $("wkRef").textContent=wkRef;$("refMeter").style.width=Math.min(100,wkRef/gr*100)+"%";
-  const resp=applied.filter(a=>RESPONDED.has(a.stage)||a.everScreened).length;
-  $("rate").textContent=applied.length?Math.round(resp/applied.length*100)+"%":"–";
-  $("rateSub").textContent=`${resp} of ${applied.length} got a screen`;
-  $("inInt").textContent=A.filter(a=>a.stage==="Interviewing").length;
-  const off=A.filter(a=>a.stage==="Offer").length;$("offers").textContent=off+(off===1?" offer":" offers");
-  $("dueN").textContent=A.filter(isDue).length;
-  const rej=A.filter(a=>a.stage==="Rejected");const rejWk=rej.filter(a=>(a.rejected||(a.updated||"").slice(0,10))>=ws).length;
-  $("rejN").textContent=rej.length;
-  $("rejSub").textContent=(applied.length?Math.round(rej.length/applied.length*100):0)+"% of applied · "+rejWk+" this week";
-  const by={};applied.forEach(a=>{const s=a.source||"Other";by[s]=by[s]||{n:0,r:0};by[s].n++;if(RESPONDED.has(a.stage)||a.everScreened)by[s].r++});
-  const rows=Object.entries(by).sort((x,y)=>y[1].n-x[1].n);
-  $("sources").innerHTML=rows.length?rows.map(([s,v])=>`<div class="srow"><span>${esc(s)}</span><div class="bar"><i style="width:${v.n?v.r/v.n*100:0}%"></i></div><span class="v">${v.r}/${v.n} · ${Math.round(v.r/v.n*100)}%</span></div>`).join("")
-    :`<div class="empty" style="border:none;padding:8px">Once you've logged a few applications, this shows which channel gets you screens. Expect referrals to beat cold applies by a wide margin.</div>`;
-}
-
-function renderList(){
-  let A=[...state.apps];
-  const f=state.filter;
-  if(f==="Active")A=A.filter(isActive);else if(f==="Waiting 7d+")A=A.filter(isDue);else if(f==="All")A=A.filter(isApp);else A=A.filter(a=>isApp(a)&&a.stage===f);
-  A.sort((a,b)=>(isDue(b)-isDue(a))||((a.next||"9999")<(b.next||"9999")?-1:(a.next||"9999")>(b.next||"9999")?1:0)||((b.updated||"")>(a.updated||"")?1:-1));
-  if(!A.length){$("list").innerHTML=`<div class="empty">${state.apps.length?"Nothing in this view.":"Your applications will appear here. Tap <b>+ Add application</b> to log the first one."}</div>`;return}
-  $("list").innerHTML=A.map(a=>{
-    const due=isDue(a);
-    const visa=a.visa==="yes"?`<span class="pill visa-yes">sponsors</span>`:a.visa==="no"?`<span class="pill visa-no">no sponsorship</span>`:"";
-    return `<article class="card${due?" due":""}" data-id="${esc(a.id)}">
-      <div><div class="co">${esc(a.company)}</div><div class="ro">${esc(a.role)}</div></div>
-      <select class="stage-sel" data-stage="${esc(a.id)}" aria-label="Stage for ${esc(a.company)}" ${state.writable?"":"disabled"}>${STAGES.map(s=>`<option${s===a.stage?" selected":""}>${s}</option>`).join("")}</select>
-      <div class="meta">${due?`<span class="pill due">no reply 7d+</span>`:""}${visa}
-        <span>${esc(a.source||"")}</span>${a.applied?`<span>applied ${fmt(a.applied)}</span>`:""}${a.next&&!due?`<span>next ${fmt(a.next)}</span>`:""}
-        ${a.contact?`<span>${esc(a.contact)}</span>`:""}${a.resume?`<span>cv: ${esc(a.resume)}</span>`:""}${a.url?`<a href="${esc(a.url)}" target="_blank" rel="noopener">posting ↗</a>`:""}</div>
-      ${a.notes?`<div class="notes">${esc(a.notes)}</div>`:""}
-      ${state.writable?`<div class="acts"><button class="link-btn" data-edit="${esc(a.id)}" type="button">Edit</button><button class="link-btn bad" data-del="${esc(a.id)}" type="button">Delete</button></div>`:""}
-    </article>`}).join("");
-}
-function render(){renderStats();renderList()}
-
+/* ---------- data ---------- */
 function setStatus(t,err){$("status").textContent=t;$("status").classList.toggle("err",!!err)}
-function openForm(a){
-  state.editing=a?a.id:null;$("formTitle").textContent=a?"Edit application":"Add application";
-  const v=a||{source:"Referral",stage:"Wishlist",visa:"unknown"};
-  for(const k of ["company","role","url","source","stage","visa","applied","next","contact","resume","notes"])$("f-"+k).value=v[k]||"";
-  if(!a){$("f-source").value="Referral";$("f-stage").value="Wishlist";$("f-visa").value="unknown"}
-  $("form").hidden=false;$("f-company").focus();$("form").scrollIntoView({behavior:"smooth",block:"start"});
-}
-$("addBtn").onclick=()=>openForm(null);
-$("cancelBtn").onclick=()=>{$("form").hidden=true};
+async function write(id,body,merge){if(!S.db){setStatus("Not connected, so changes can't be saved. Reload the page.",true);return false}
+  try{const r=S.db.collection("apps").doc(id);merge?await r.update(body):await r.set(body);setStatus("Saved");return true}
+  catch(e){setStatus(e&&e.code==="quota_exceeded"?"Tracker is full. Delete old roles to make room.":"Couldn't save: "+(e&&e.message||"try again"),true);return false}}
+async function setStage(a,s){const p={stage:s,updated:new Date().toISOString()};
+  if(!NOT_APPLIED.has(s)&&!a.applied)p.applied=todayStr();if(ADVANCED.has(s))p.everScreened=true;if(s==="Rejected"&&!a.rejected)p.rejected=todayStr();
+  await write(a.id,p,true)}
 
-async function write(id,body,merge){
-  if(!state.db){setStatus("Not connected — changes can't be saved right now.",true);return false}
-  try{const ref=state.db.collection("apps").doc(id);merge?await ref.update(body):await ref.set(body);return true}
-  catch(e){setStatus(e&&e.code==="quota_exceeded"?"Tracker is full — delete old entries.":"Couldn't save: "+(e&&e.message||"unknown error"),true);return false}
-}
-$("form").addEventListener("submit",async e=>{
-  e.preventDefault();
-  const body={};for(const k of ["company","role","url","source","stage","visa","applied","next","contact","resume","notes"])body[k]=$("f-"+k).value.trim();
-  if(["Applied","Recruiter screen","Interviewing","Offer"].includes(body.stage)&&!body.applied)body.applied=today();
-  if(body.stage==="Applied"&&!body.next)body.next=addDays(body.applied||today(),7);
-  if(RESPONDED.has(body.stage))body.everScreened=true;
-  const prev=state.apps.find(a=>a.id===state.editing);
-  if(prev&&prev.everScreened)body.everScreened=true;
-  body.created=prev?.created||today();body.updated=new Date().toISOString();
-  const id=state.editing||("a"+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
-  $("saveBtn").disabled=true;
-  if(await write(id,body,false)){$("form").hidden=true;setStatus("Saved")}
-  $("saveBtn").disabled=false;
-});
-$("list").addEventListener("change",async e=>{
-  const id=e.target.dataset.stage;if(!id)return;
-  const s=e.target.value,a=state.apps.find(x=>x.id===id),patch={stage:s,updated:new Date().toISOString()};
-  if(["Applied","Recruiter screen","Interviewing","Offer"].includes(s)&&!a.applied)patch.applied=today();
-  if(s==="Applied")patch.next=addDays(today(),7);
-  if(["Recruiter screen","Interviewing"].includes(s))patch.next=addDays(today(),3);
-  if(RESPONDED.has(s))patch.everScreened=true;
-  if(["Rejected","Withdrawn","Offer"].includes(s))patch.next="";
-  await write(id,patch,true);
-});
-let pendingDel=null;
-$("list").addEventListener("click",async e=>{
-  const t=e.target;
-  if(t.dataset.edit){openForm(state.apps.find(a=>a.id===t.dataset.edit));return}
-  if(t.dataset.snooze){await write(t.dataset.snooze,{next:addDays(today(),7),updated:new Date().toISOString()},true);return}
-  if(t.dataset.del){
-    if(pendingDel!==t.dataset.del){pendingDel=t.dataset.del;t.textContent="Tap again to delete";setTimeout(()=>{if(pendingDel===t.dataset.del){pendingDel=null;t.textContent="Delete"}},4000);return}
-    pendingDel=null;try{await state.db.collection("apps").doc(t.dataset.del).delete()}catch(err){setStatus("Couldn't delete: "+(err&&err.message||""),true)}
-  }
-});
+/* ---------- views ---------- */
+const VIEWS=["overview","board","roles"];
+function go(v){if(!VIEWS.includes(v))v="overview";S.view=v;VIEWS.forEach(x=>{$("view-"+x).hidden=x!==v;$("tab-"+x).setAttribute("aria-selected",x===v)});if(location.hash!=="#"+v)history.replaceState(null,"","#"+v);render()}
+document.querySelector(".tabs").addEventListener("click",e=>{const t=e.target.closest("[data-view]");if(t)go(t.dataset.view)});
+addEventListener("hashchange",()=>go(location.hash.slice(1)));
+function render(){renderKpis();if(S.view==="overview"){renderFunnel();renderCadence();renderCompanies();renderWaiting();renderActivity()}else if(S.view==="board")renderBoard();else renderTable()}
 
-let goalTimer;
-function saveGoals(){clearTimeout(goalTimer);renderStats();goalTimer=setTimeout(async()=>{if(!state.db)return;try{await state.db.doc("meta/settings").set({goalApps:+$("goalApps").value||15,goalRefs:+$("goalRefs").value||5})}catch(e){}},800)}
-$("goalApps").addEventListener("input",saveGoals);$("goalRefs").addEventListener("input",saveGoals);
+let goalT;$("goalApps").addEventListener("input",()=>{render();clearTimeout(goalT);goalT=setTimeout(async()=>{if(S.db)try{await S.db.doc("meta/settings").set({goalApps:+$("goalApps").value||15})}catch(e){}},800)});
 
-renderFilters();render();
+go(location.hash.slice(1)||"overview");
 (async()=>{
-  const db=await claude.use("db");
-  if(!db){setStatus("Open this page signed in to claude.ai to load your tracker.",true);$("addBtn").disabled=true;return}
-  state.db=db;
-  const user=await claude.use("user");
-  if(user){try{const w=await user.can("data.write");if(w===false){state.writable=false;$("addBtn").hidden=true;setStatus("Read-only view")}}catch(e){}}
-  const timer=setTimeout(()=>setStatus("Can't reach your tracker yet — check your connection.",true),10000);
-  db.collection("apps").onSnapshot(snap=>{
-    if(!snap.metadata.fromCache){clearTimeout(timer);if(state.writable)setStatus(`${snap.size} tracked · synced`)}
-    state.apps=snap.docs.map(d=>({id:d.id,...d.data()}));render();
-  },err=>{clearTimeout(timer);setStatus("Tracker stopped syncing ("+err.code+"). Reload to reconnect.",true)});
-  try{const s=await db.doc("meta/settings").get();if(s.exists){const v=s.data();if(v.goalApps)$("goalApps").value=v.goalApps;if(v.goalRefs)$("goalRefs").value=v.goalRefs;renderStats()}}catch(e){}
+  const db=window.claude&&await claude.use("db");
+  if(!db){setStatus("Open this page signed in to claude.ai to load your roles.",true);$("addBtn").disabled=true;$("subline").textContent="Sign in to see your pipeline.";return}
+  S.db=db;
+  try{const u=await claude.use("user");if(u){const w=await u.can("data.write");if(w===false){S.writable=false;$("addBtn").hidden=true}}}catch(e){}
+  const timer=setTimeout(()=>setStatus("Can't reach your tracker yet. Check your connection.",true),10000);
+  db.collection("apps").onSnapshot(snap=>{if(!snap.metadata.fromCache){clearTimeout(timer);setStatus(S.writable?"Synced":"Read-only")}
+    S.apps=snap.docs.map(d=>({id:d.id,...d.data()}));render()},err=>{clearTimeout(timer);setStatus("Stopped syncing ("+err.code+"). Reload to reconnect.",true)});
+  try{const s=await db.doc("meta/settings").get();if(s.exists&&s.data().goalApps){$("goalApps").value=s.data().goalApps;render()}}catch(e){}
 })();
 </script>
-
-</body></html>
