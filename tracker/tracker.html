@@ -58,6 +58,21 @@ a{color:var(--accent)}
 .kpi .n{font:600 28px/1.15 var(--display);font-variant-numeric:tabular-nums}
 .kpi .s{font-size:12px;color:var(--muted)}
 .kpi.warn .n{color:var(--warn)} .kpi.bad .n{color:var(--bad)} .kpi.good .n{color:var(--good)}
+.kpi{cursor:pointer;position:relative;text-align:left;background:none}
+.kpi:hover{background:var(--sunk)} .kpi:first-child:hover{border-radius:12px 0 0 12px} .kpi:last-child:hover{border-radius:0 12px 12px 0}
+.kpi[aria-pressed="true"]{box-shadow:inset 0 -3px 0 var(--accent);background:var(--accent-soft)}
+.kpi .l{display:flex;justify-content:space-between;gap:6px}
+.kpi .go{font-size:11px;color:var(--accent);opacity:0;transition:opacity .15s}
+.kpi:hover .go,.kpi:focus-visible .go,.kpi[aria-pressed="true"] .go{opacity:1}
+.nrow{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;min-height:34px}
+.spark{display:block;width:76px;height:28px;flex:none}
+.spark svg{display:block;width:100%;height:100%;overflow:visible}
+.delta{font:500 12px var(--mono);padding:2px 7px;border-radius:999px;background:var(--sunk);white-space:nowrap;margin-bottom:4px}
+.delta.up{background:var(--good-soft);color:var(--good)} .delta.down{background:var(--bad-soft);color:var(--bad)}
+.aging{display:flex;gap:2px;width:76px;height:8px;margin-bottom:8px;flex:none}
+.aging i{display:block;height:100%;border-radius:2px;min-width:3px}
+.kchip{display:inline-flex;gap:8px;align-items:center;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:4px 6px 4px 12px;font-size:13px;font-weight:500}
+.kchip button{border:0;background:var(--surface);color:var(--ink);border-radius:999px;padding:2px 9px;cursor:pointer;font-size:12px}
 .meter{height:5px;border-radius:3px;background:var(--sunk);overflow:hidden;margin-top:4px}
 .meter i{display:block;height:100%;background:var(--accent);border-radius:3px}
 .goal-edit{width:3.4em;border:1px solid var(--line);border-radius:6px;background:var(--bg);padding:0 4px;font:12px var(--mono)}
@@ -185,14 +200,14 @@ dialog::backdrop{background:rgb(10 15 25 / .45)}
   </nav>
 
   <section class="kpis" aria-label="Summary">
-    <div class="kpi"><span class="l">Total applied</span><span class="n" id="kTotal">0</span><span class="s" id="kTotalS">all time</span></div>
-    <div class="kpi"><span class="l">This week</span><span class="n" id="kWeek">0</span>
+    <div class="kpi" data-kpi="total" role="button" tabindex="0"><span class="l">Total applied <span class="go">View ›</span></span><span class="nrow"><span class="n" id="kTotal">0</span><span class="spark" id="sp-total"></span></span><span class="s" id="kTotalS">all time</span></div>
+    <div class="kpi" data-kpi="week" role="button" tabindex="0"><span class="l">This week <span class="go">View ›</span></span><span class="nrow"><span class="n" id="kWeek">0</span><span class="delta" id="kWeekD"></span></span>
       <div class="meter"><i id="kWeekM" style="width:0%"></i></div>
-      <span class="s">goal <input class="goal-edit" id="goalApps" type="number" min="1" value="15" aria-label="Weekly application goal"></span></div>
-    <div class="kpi"><span class="l">Heard back</span><span class="n" id="kHeard">–</span><span class="s" id="kHeardS">any reply ÷ applied</span></div>
-    <div class="kpi good"><span class="l">Screens &amp; interviews</span><span class="n" id="kScreen">0</span><span class="s" id="kScreenS">0 offers</span></div>
-    <div class="kpi warn"><span class="l">No reply, 7+ days</span><span class="n" id="kWait">0</span><span class="s" id="kWaitS">applied a week ago or more</span></div>
-    <div class="kpi bad"><span class="l">Rejected</span><span class="n" id="kRej">0</span><span class="s" id="kRejS">0% of applied</span></div>
+      <span class="s">goal <input class="goal-edit" id="goalApps" type="number" min="1" value="15" aria-label="Weekly application goal"> · <span id="kWeekS"></span></span></div>
+    <div class="kpi" data-kpi="heard" role="button" tabindex="0"><span class="l">Heard back <span class="go">View ›</span></span><span class="nrow"><span class="n" id="kHeard">–</span><span class="spark" id="sp-heard"></span></span><span class="s" id="kHeardS">any reply ÷ applied</span></div>
+    <div class="kpi good" data-kpi="screen" role="button" tabindex="0"><span class="l">Screens &amp; interviews <span class="go">View ›</span></span><span class="nrow"><span class="n" id="kScreen">0</span></span><span class="s" id="kScreenS">0 offers</span></div>
+    <div class="kpi warn" data-kpi="wait" role="button" tabindex="0"><span class="l">No reply, 7+ days <span class="go">View ›</span></span><span class="nrow"><span class="n" id="kWait">0</span><span class="aging" id="kWaitBar"></span></span><span class="s" id="kWaitS">applied a week ago or more</span></div>
+    <div class="kpi bad" data-kpi="rej" role="button" tabindex="0"><span class="l">Rejected <span class="go">View ›</span></span><span class="nrow"><span class="n" id="kRej">0</span><span class="spark" id="sp-rej"></span></span><span class="s" id="kRejS">0% of applied</span></div>
   </section>
 
   <!-- OVERVIEW -->
@@ -240,6 +255,7 @@ dialog::backdrop{background:rgb(10 15 25 / .45)}
         <input type="search" id="q" placeholder="Search company, role, location, notes" aria-label="Search roles">
         <select id="stageF" aria-label="Filter by stage" class="btn"></select>
         <label><input type="checkbox" id="showSkipped"> Show skipped</label>
+        <span id="kpiChip"></span>
       </div>
       <div class="tablewrap"><table>
         <thead><tr>
@@ -330,9 +346,45 @@ function renderKpis(){
   const w=A.filter(waiting);$("kWait").textContent=w.length;$("kWaitS").textContent=`${w.filter(a=>age(a)>=21).length} past 3 weeks`;
   const rw=rej.filter(a=>(a.rejected||(a.updated||"").slice(0,10))>=ws).length;
   $("kRej").textContent=rej.length;$("kRejS").textContent=`${pct(rej.length,ap.length)}% of applied · ${rw} this week`;
+  /* trends, deltas and tooltips */
+  const lastWs=addDays(ws,-7),lastWk=ap.filter(a=>(a.applied||"")>=lastWs&&(a.applied||"")<ws).length,dl=wk-lastWk;
+  const D=$("kWeekD");D.textContent=(dl>0?"+":"")+dl+" vs last wk";D.className="delta "+(dl>0?"up":dl<0?"down":"");
+  $("kWeekS").textContent=wk>=goal?"goal met":`${goal-wk} to go`;
+  spark("sp-total",daily(ap,a=>a.applied),"var(--accent)","applications per day");
+  spark("sp-heard",daily(heard,a=>a.rejected||a.updated),"var(--accent)","replies per day");
+  spark("sp-rej",daily(rej,a=>a.rejected||a.updated),"var(--bad)","rejections per day");
+  const wa=w.map(age),b1=wa.filter(d=>d<14).length,b2=wa.filter(d=>d>=14&&d<21).length,b3=wa.filter(d=>d>=21).length;
+  $("kWaitBar").innerHTML=[[b1,"background:var(--warn-soft);border:1px solid var(--warn)"],[b2,"background:var(--warn)"],[b3,"background:var(--bad)"]].filter(x=>x[0]).map(([n,c])=>`<i style="flex:${n};${c}"></i>`).join("");
+  const st={};heard.forEach(a=>st[a.stage]=(st[a.stage]||0)+1);
+  const T=(k,h)=>document.querySelector(`[data-kpi="${k}"]`).dataset.tip=h+"<br><span style='opacity:.75'>Click to see these roles</span>";
+  const top=Object.entries(ap.reduce((m,a)=>(m[a.company]=(m[a.company]||0)+1,m),{})).sort((x,y)=>y[1]-x[1]).slice(0,3).map(([c,n])=>`${esc(c)} ${n}`).join(", ");
+  T("total",`<b>${ap.length} applications</b> to ${new Set(ap.map(a=>a.company)).size} companies<br>Most: ${top}`);
+  T("week",`<b>${wk} this week</b> (since ${fmt(ws)})<br>${lastWk} last week · goal ${goal}`);
+  T("heard",`<b>${heard.length} replies</b><br>`+Object.entries(st).sort((x,y)=>y[1]-x[1]).map(([s,n])=>`${esc(s)}: ${n}`).join("<br>"));
+  T("screen",`<b>${adv.length} in conversation</b><br>`+(adv.map(a=>esc(a.company)+" · "+esc(a.stage)).join("<br>")||"none yet"));
+  T("wait",`<b>${w.length} with no reply</b><br>7 to 13 days: ${b1}<br>14 to 20 days: ${b2}<br>21+ days (likely ghosted): ${b3}`);
+  T("rej",`<b>${rej.length} rejections</b><br>${rw} this week<br>median ${median(rej.map(a=>a.applied&&(a.rejected||a.updated)?daysBetween(a.applied.slice(0,10),(a.rejected||a.updated).slice(0,10)):null))} days from applying`);
+  document.querySelectorAll("[data-kpi]").forEach(el=>el.setAttribute("aria-pressed",S.view==="roles"&&S.kpi===el.dataset.kpi));
   const blocked=A.filter(blockerOf).length;
   $("subline").textContent=`${ap.length} applied · ${A.filter(a=>["Applied","Referred","Under review"].includes(a.stage)).length} open · ${adv.length} in conversation · ${blocked} roles waiting on you`;
 }
+
+function daily(list,dateOf,days=14){const end=todayStr(),out=[];for(let i=days-1;i>=0;i--){const d=addDays(end,-i);out.push([d,list.filter(a=>(dateOf(a)||"").slice(0,10)===d).length])}return out}
+function median(xs){xs=xs.filter(x=>x!=null&&x>=0).sort((a,b)=>a-b);if(!xs.length)return "–";const m=Math.floor(xs.length/2);return xs.length%2?xs[m]:Math.round((xs[m-1]+xs[m])/2)}
+function spark(id,series,color,label){const W=76,H=28,max=Math.max(1,...series.map(s=>s[1])),n=series.length,x=i=>i*(W-4)/(n-1)+2,y=v=>H-3-(v/max)*(H-6);
+  const pts=series.map((s,i)=>`${x(i).toFixed(1)},${y(s[1]).toFixed(1)}`).join(" "),last=series[n-1];
+  $(id).innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${label}, last 14 days"><polygon points="2,${H-3} ${pts} ${W-2},${H-3}" fill="${color}" opacity=".14"/><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linejoin="round"/><circle cx="${x(n-1)}" cy="${y(last[1])}" r="2.6" fill="${color}"/></svg>`}
+const KPI={
+  total:["All applications",a=>applied(a)],
+  week:["Applied this week",a=>applied(a)&&(a.applied||"")>=weekStart()],
+  heard:["Heard back",a=>applied(a)&&a.stage!=="Applied"&&a.stage!=="Referred"],
+  screen:["Screens & interviews",a=>applied(a)&&advanced(a)],
+  wait:["No reply, 7+ days",a=>waiting(a)],
+  rej:["Rejected",a=>applied(a)&&a.stage==="Rejected"]};
+function openKpi(k){S.kpi=k;$("stageF").value="";$("q").value="";S.sort=k==="wait"?["age",-1]:["applied",-1];go("roles")}
+document.querySelector(".kpis").addEventListener("click",e=>{if(e.target.closest("input"))return;const t=e.target.closest("[data-kpi]");if(t)openKpi(S.view==="roles"&&S.kpi===t.dataset.kpi?null:t.dataset.kpi)});
+document.querySelector(".kpis").addEventListener("keydown",e=>{const t=e.target.closest("[data-kpi]");if(t&&e.target===t&&(e.key==="Enter"||e.key===" ")){e.preventDefault();openKpi(t.dataset.kpi)}});
+$("goalApps").addEventListener("click",e=>e.stopPropagation());
 
 /* ---------- funnel ---------- */
 function renderFunnel(){
@@ -426,6 +478,8 @@ $("board").addEventListener("click",e=>{const m=e.target.closest("[data-more]");
 function renderTable(){
   const q=$("q").value.trim().toLowerCase(),sf=$("stageF").value,sk=$("showSkipped").checked;
   let A=S.apps.filter(isApp).filter(a=>sk||a.stage!=="Skipped"||sf==="Skipped");
+  if(S.kpi&&KPI[S.kpi])A=A.filter(KPI[S.kpi][1]);
+  $("kpiChip").innerHTML=S.kpi&&KPI[S.kpi]?`<span class="kchip">Showing: ${esc(KPI[S.kpi][0])}<button type="button" id="kpiClear" aria-label="Clear KPI filter">Clear ×</button></span>`:"";
   if(sf)A=A.filter(a=>a.stage===sf);
   if(q)A=A.filter(a=>[a.company,a.role,a.location,a.notes,a.stage].join(" ").toLowerCase().includes(q));
   const [k,dir]=S.sort,val=a=>k==="age"?(age(a)??-1):(a[k]||"").toString().toLowerCase();
@@ -436,6 +490,7 @@ function renderTable(){
 }
 $("stageF").innerHTML=`<option value="">All stages</option>`+STAGES.map(s=>`<option>${s}</option>`).join("");
 ["q","stageF","showSkipped"].forEach(id=>$(id).addEventListener("input",renderTable));
+$("kpiChip").addEventListener("click",e=>{if(e.target.id==="kpiClear"){S.kpi=null;render()}});
 document.querySelector("thead").addEventListener("click",e=>{const th=e.target.closest("th[data-k]");if(!th)return;S.sort=[th.dataset.k,S.sort[0]===th.dataset.k?-S.sort[1]:(th.dataset.k==="company"||th.dataset.k==="role"?1:-1)];renderTable()});
 
 /* ---------- drawer ---------- */
@@ -473,7 +528,7 @@ async function setStage(a,s){const p={stage:s,updated:new Date().toISOString()};
 /* ---------- views ---------- */
 const VIEWS=["overview","board","roles"];
 function go(v){if(!VIEWS.includes(v))v="overview";S.view=v;VIEWS.forEach(x=>{$("view-"+x).hidden=x!==v;$("tab-"+x).setAttribute("aria-selected",x===v)});if(location.hash!=="#"+v)history.replaceState(null,"","#"+v);render()}
-document.querySelector(".tabs").addEventListener("click",e=>{const t=e.target.closest("[data-view]");if(t)go(t.dataset.view)});
+document.querySelector(".tabs").addEventListener("click",e=>{const t=e.target.closest("[data-view]");if(t){if(t.dataset.view==="roles")S.kpi=null;go(t.dataset.view)}});
 addEventListener("hashchange",()=>go(location.hash.slice(1)));
 function render(){renderKpis();if(S.view==="overview"){renderFunnel();renderCadence();renderCompanies();renderWaiting();renderActivity()}else if(S.view==="board")renderBoard();else renderTable()}
 
