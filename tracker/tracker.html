@@ -26,7 +26,9 @@
   --good:#5CC98A; --good-soft:#163526; --warn:#F0AE55; --warn-soft:#3A2A13; --bad:#F2857E; --bad-soft:#3D1D1B; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);margin:0}
-.wrap{max-width:1180px;margin:0 auto;padding-block:20px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+.wrap>*{min-width:0}
+html,body{overflow-x:hidden}
 h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.01em;text-wrap:balance}
 h1{font-size:clamp(24px,4.2vw,32px)} h2{font-size:18px} h3{font-size:15px}
 .eyebrow{font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -121,8 +123,10 @@ a{color:var(--accent)}
 .act time{font:12px var(--mono);color:var(--muted)}
 
 /* board */
-.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,1fr);gap:12px;overflow-x:auto;padding-bottom:8px;align-items:start}
-.colm{background:var(--sunk);border-radius:12px;padding:10px;display:grid;gap:8px;align-content:start;min-height:120px}
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:12px;align-items:start}
+.colm{background:var(--sunk);border-radius:12px;padding:10px;display:grid;gap:8px;align-content:start;min-height:84px;max-height:min(70vh,640px);overflow-y:auto;min-width:0}
+.colm.empty-col{min-height:0}
+.colm h3{position:sticky;top:-10px;background:var(--sunk);z-index:1;margin:-10px -10px 0;padding:12px 14px 6px}
 .colm.over{outline:2px dashed var(--accent);outline-offset:-2px}
 .colm h3{display:flex;justify-content:space-between;align-items:center;font-size:14px;padding:2px 4px}
 .colm h3 span{font:500 12px var(--mono);color:var(--muted)}
@@ -225,7 +229,7 @@ dialog::backdrop{background:rgb(10 15 25 / .45)}
 
   <!-- BOARD -->
   <div class="view" id="view-board" hidden>
-    <div class="phead" style="margin-bottom:10px"><span class="hint">Drag a card to change its stage. Closed roles collapse into the last column.</span></div>
+    <div class="phead" style="margin-bottom:10px"><span class="hint">Drag a card to another column to change its stage. Each column scrolls on its own; closed roles sit in the last one.</span></div>
     <div class="board" id="board"></div>
   </div>
 
@@ -406,8 +410,8 @@ function renderBoard(){
   const A=S.apps.filter(isApp);
   $("board").innerHTML=BOARD_COLS.map(([name,st])=>{let items=A.filter(a=>st.includes(a.stage));
     items.sort((x,y)=>(y.applied||y.created||"").localeCompare(x.applied||x.created||""));
-    const lim=name==="Closed"||name==="Wishlist"?12:40,extra=items.length-lim;
-    return `<div class="colm" data-col="${esc(name)}"><h3>${esc(name)} <span>${items.length}</span></h3>${items.slice(0,lim).map(cardHtml).join("")}${extra>0?`<button class="more" type="button" data-more="${esc(st[0])}">+${extra} more in All roles</button>`:""}${items.length?"":`<div class="muted" style="font-size:12px;padding:4px">Drop a card here</div>`}</div>`}).join("");
+    const lim=name==="Closed"?20:60,extra=items.length-lim;
+    return `<div class="colm${items.length?"":" empty-col"}" data-col="${esc(name)}"><h3>${esc(name)} <span>${items.length}</span></h3>${items.slice(0,lim).map(cardHtml).join("")}${extra>0?`<button class="more" type="button" data-more="${esc(st[0])}">+${extra} more in All roles</button>`:""}${items.length?"":`<div class="muted" style="font-size:12px;padding:4px">Drop a card here</div>`}</div>`}).join("");
 }
 function cardHtml(a){const b=blockerOf(a);return `<article class="card" draggable="${S.writable}" data-id="${esc(a.id)}" data-open="${esc(a.id)}"><div class="co">${esc(a.company)}</div><div class="ro">${esc(a.role||"")}</div><div class="meta">${a.applied&&applied(a)?`<span>${fmt(a.applied)}</span>`:""}${agePill(a)}${b?`<span class="pill warn">${esc(b)}</span>`:""}${a.stage==="Rejected"?`<span class="pill bad">rejected</span>`:""}${a.location?`<span>${esc(a.location.split(/[;,]/)[0].slice(0,22))}</span>`:""}</div></article>`}
 let dragId=null;
