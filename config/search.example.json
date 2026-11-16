@@ -1,0 +1,52 @@
+{
+ "_doc": "Scanner settings. Every regex is case-insensitive. Edit these to match YOUR resume and job search.",
+ "title_keep": "software|developer|\\bswe\\b|\\bsde\\b|full[\\s-]?stack|front[\\s-]?end|back[\\s-]?end|platform engineer|infrastructure engineer|product engineer|data engineer|ai engineer|applied ai|member of technical staff|\\bmts\\b|\\bsmts\\b",
+ "title_drop": "intern\\b|internship|new grad|graduate|university|campus|student|apprentice|(?<!technical )\\bstaff\\b|principal|distinguished|fellow|director|manager|head of|\\bvp\\b|vice president|architect|embedded|firmware|hardware|asic|fpga|silicon|kernel|driver|\\bios\\b|android|mobile|\\bqa\\b|quality|test|sdet|security|site reliability|\\bsre\\b|devops|network|salesforce developer|\\bsap\\b|mainframe|clearance|ts/sci|research scientist|scientist|phd|\\bgpu\\b|cuda|compiler|robotics|autonomy|perception|lmts|pmts|level (5|6)|\\biii\\b|\\biv\\b|\\b(engineer|developer) (4|5|6)\\b|contract|part[- ]time|japan|korea|london|toronto",
+ "location": {
+  "mode": "us",
+  "non_us": "canada|toronto|vancouver|montreal|united kingdom|\\buk\\b|london|ireland|dublin|india|bengaluru|bangalore|hyderabad|pune|chennai|gurgaon|noida|germany|berlin|munich|netherlands|amsterdam|france|paris|spain|madrid|barcelona|poland|warsaw|krakow|singapore|japan|tokyo|australia|sydney|melbourne|brazil|s[a\u00e3]o paulo|mexico|israel|tel aviv|switzerland|zurich|sweden|stockholm|denmark|copenhagen|china|beijing|shanghai|taiwan|korea|seoul|philippines|costa rica|argentina|colombia|romania|czech|portugal|lisbon|italy|milan|belgium|austria|vienna|emea|apac|latam",
+  "us_hint": "alabama|alaska|arizona|arkansas|california|colorado|connecticut|delaware|florida|georgia|hawaii|idaho|illinois|indiana|iowa|kansas|kentucky|louisiana|maine|maryland|massachusetts|michigan|minnesota|mississippi|missouri|montana|nebraska|nevada|new hampshire|new jersey|new mexico|north carolina|north dakota|ohio|oklahoma|oregon|pennsylvania|rhode island|south carolina|south dakota|tennessee|texas|utah|vermont|virginia|washington|west virginia|wisconsin|wyoming|united states|\\busa?\\b|\\bus\\b|remote|anywhere|, ?(al|ak|az|ar|ca|co|ct|de|fl|ga|hi|id|il|in|ia|ks|ky|la|me|md|ma|mi|mn|ms|mo|mt|ne|nv|nh|nj|nm|ny|nc|nd|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|vt|va|wa|wv|wi|wy|dc)\\b|new york|san francisco|seattle|austin|dallas|chicago|boston|denver|atlanta|los angeles|bellevue|redmond|sunnyvale|mountain view|menlo park|palo alto|san jose|santa clara|plano|irving|richmond|mclean|houston|washington",
+  "_doc": "mode 'us' keeps US/remote-US roles. Set mode to 'any' to keep every location, or replace the regexes for another country."
+ },
+ "needs_sponsorship": true,
+ "visa_flags": "(unable|not able|will not|won't|cannot|can't|do not|does not|not)\\s+(to\\s+)?(provide\\s+|offer\\s+|support\\s+)?(any\\s+)?(visa\\s+|immigration\\s+|employment\\s+)?sponsor|without (the need for )?(current or future )?(visa )?sponsorship|no (visa )?sponsorship|may not be able to [^\\n]{0,250}?sponsorship|(not eligible|ineligible) for [^\\n]{0,40}?sponsorship|sponsorship is not available|u\\.?s\\.? citizen(ship)? (is )?required|must be a u\\.?s\\.? citizen|security clearance|active clearance|green card holders? only|\\bitar\\b",
+ "skills": {
+  "\\breact\\b": 8,
+  "typescript": 8,
+  "javascript": 5,
+  "node(\\.js)?\\b": 4,
+  "full[\\s-]?stack": 8,
+  "front[\\s-]?end": 5,
+  "kafka": 8,
+  "clickhouse": 10,
+  "stream(ing)?\\b": 4,
+  "event[\\s-]driven": 4,
+  "data pipeline|pipelines": 4,
+  "analytics|observability|telemetry|instrumentation": 5,
+  "distributed systems?": 4,
+  "scal(e|able|ability)": 2,
+  "c#|\\.net": 6,
+  "\\bphp\\b": 3,
+  "python": 3,
+  "\\bsql\\b|mysql|postgres": 3,
+  "\\bgcp\\b|google cloud": 3,
+  "\\bllm|generative ai|genai|\\bai\\b|agents?\\b": 5,
+  "platform": 3,
+  "api(s)?\\b|rest": 2,
+  "product engineer": 4,
+  "design system|ui components?": 3,
+  "mentor": 2
+ },
+ "skills_cap": 45,
+ "off_stack": "\\b(c\\+\\+|rust|golang|scala|kotlin|swift|objective-c|verilog|cuda)\\b",
+ "title_bonus": {
+  "full[\\s-]?stack|front[\\s-]?end|product": 6,
+  "senior|sr\\.?|\\bii\\b|\\b2\\b|smts|mts": 3
+ },
+ "years_penalty": {
+  "8": 15,
+  "6": 6
+ },
+ "stretch_years": 6,
+ "amazon_require_level": "\\bii\\b|senior|sr\\.?\\b"
+}

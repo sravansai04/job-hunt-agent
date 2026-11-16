@@ -1,0 +1,16 @@
+# your private data: never commit
+config/profile.json
+config/search.json
+config/targets.json
+config/summaries.md
+config/rules.local.md
+resume/base.tex
+resume/jobs/
+resume/upload/
+automation/build/
+data/
+*.pdf
+*.png
+*.yml
+.DS_Store
+__pycache__/

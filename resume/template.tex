@@ -1,0 +1,108 @@
+%% Resume template. Copy to resume/base.tex (git-ignored) and fill in your real content.
+\documentclass[10pt, letterpaper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{charter}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.6in, top=0.55in, bottom=0.55in]{geometry}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={Your Name - Resume}, pdfauthor={Your Name}}
+\input{glyphtounicode}
+\pdfgentounicode=1
+
+\definecolor{ruler}{HTML}{AAAAAA}
+\definecolor{muted}{HTML}{555555}
+
+\pagestyle{empty}
+
+\titleformat{\section}
+  {\bfseries\normalsize}
+  {}{0em}{\MakeUppercase}
+  [\color{ruler}\titlerule]
+\titlespacing{\section}{0pt}{10pt}{5pt}
+
+\setlist[itemize]{
+  leftmargin=1.2em,
+  itemsep=2pt,
+  topsep=2pt,
+  parsep=0pt,
+  label=\textbullet
+}
+
+\usepackage{needspace}
+\newcommand{\jobtitle}[4]{%
+  \needspace{6\baselineskip}
+  \vspace{6pt}
+  \noindent\textbf{#1} \hfill {\small\color{muted}\textit{#3 $\cdot$ #4}}\\[-2pt]
+  \textbf{#2}
+  \vspace{2pt}
+}
+
+\newcommand{\subproject}[1]{%
+  \vspace{7pt}
+  \noindent\textbf{\small #1}
+  \vspace{1pt}
+}
+
+\newcommand{\skillrow}[2]{%
+  \noindent\textbf{#1:} #2\\[3pt]
+}
+
+\begin{document}
+
+%% ── Header ──
+\begin{center}
+  {\LARGE\bfseries YOUR NAME}\\[5pt]
+  {\small\color{muted}
+    City, ST \quad\textbar\quad
+    you@example.com \quad\textbar\quad
+    +1-(555)-555-0100 \quad\textbar\quad
+    \href{https://www.linkedin.com/in/your-handle/}{linkedin.com/in/your-handle}
+  }
+\end{center}
+
+\vspace{-4pt}
+\noindent\color{ruler}\rule{\linewidth}{0.6pt}
+\color{black}
+
+%% ── Summary: pick one from config/summaries.md per job ──
+\noindent Two or three plain sentences. Years of experience, main stack, and your single strongest result with a real number.
+
+%% ── Experience ──
+\section{Experience}
+
+\jobtitle{Current Company}{Your Title}{Jan 2023 -- Present}{City, ST}
+\begin{itemize}
+  \item One line on scope: team size, what you own.
+\end{itemize}
+
+\subproject{Project Name}
+\begin{itemize}
+  \item What you built, how, and the measured result (\textbf{numbers in bold}).
+  \item Keep each project block self-contained so blocks can be reordered per job.
+\end{itemize}
+
+\jobtitle{Previous Company}{Your Title}{Jun 2020 -- Dec 2022}{City, Country}
+\begin{itemize}
+  \item What you built and the result.
+\end{itemize}
+
+%% ── Technical Skills: only skills you have really used ──
+\section{Technical Skills}
+\skillrow{Languages}{...}
+\skillrow{Backend \& Data}{...}
+\skillrow{Infrastructure}{...}
+\skillrow{Frontend}{...}
+
+%% ── Education ──
+\section{Education}
+\noindent\textbf{University Name}\\
+M.S.\ Computer Science\\[4pt]
+\noindent\textbf{College Name}\\
+B.S.\ Computer Science
+
+\end{document}

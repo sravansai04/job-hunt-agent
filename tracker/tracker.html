@@ -1,0 +1,290 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Job Hunt Tracker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single working column — pulse numbers, follow-ups due, pipeline list; form slides in above the list. */
+:root{
+  --bg:#F3F5F7; --surface:#FFFFFF; --ink:#16212B; --muted:#5B6874; --line:#DCE2E7;
+  --accent:#1F6F5C; --accent-ink:#FFFFFF; --accent-soft:#E2F0EB;
+  --warn:#A55B00; --warn-soft:#FBEBD6; --bad:#A3312B; --bad-soft:#F7E1DF; --good:#1F6F5C;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F151A; --surface:#172028; --ink:#E6ECF0; --muted:#97A4AE; --line:#2A3640;
+  --accent:#5DC0A3; --accent-ink:#0B1A15; --accent-soft:#183A31;
+  --warn:#F0A957; --warn-soft:#3A2A14; --bad:#F08A82; --bad-soft:#3B1D1B; --good:#5DC0A3; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F151A; --surface:#172028; --ink:#E6ECF0; --muted:#97A4AE; --line:#2A3640;
+  --accent:#5DC0A3; --accent-ink:#0B1A15; --accent-soft:#183A31;
+  --warn:#F0A957; --warn-soft:#3A2A14; --bad:#F08A82; --bad-soft:#3B1D1B; --good:#5DC0A3; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:980px;margin:0 auto;padding-block:24px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
+h1,h2{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(26px,5vw,36px)}
+h2{font-size:19px}
+.eyebrow{font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:end;justify-content:space-between}
+header .sub{color:var(--muted);margin-top:4px}
+.status{font:12px var(--mono);color:var(--muted)}
+.status.err{color:var(--bad)}
+button,select,input,textarea{font:inherit;color:inherit}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:500}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pulse{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.tile{background:var(--surface);padding:14px 16px;display:grid;gap:4px}
+.tile .n{font:600 28px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.tile .l{font-size:12px;color:var(--muted)}
+.meter{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent)}
+.goal-edit{width:3.2em;border:1px solid var(--line);border-radius:6px;background:var(--bg);padding:0 4px;font:12px var(--mono)}
+.sources{display:grid;gap:8px}
+.srow{display:grid;grid-template-columns:110px 1fr 70px;gap:10px;align-items:center;font-size:13px}
+.srow .bar{height:10px;background:var(--line);border-radius:5px;overflow:hidden}
+.srow .bar i{display:block;height:100%;background:var(--accent)}
+.srow .v{font:12px var(--mono);text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.section{display:grid;gap:12px}
+.section-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+form.panel{display:grid;gap:12px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+label{display:grid;gap:4px;font-size:12px;color:var(--muted);font-weight:500}
+input,select,textarea{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 10px;font-size:15px;min-width:0;width:100%}
+textarea{min-height:70px;resize:vertical}
+.row-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.list{display:grid;gap:8px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;align-items:start}
+.card.due{border-left:4px solid var(--warn)}
+.card .co{font-weight:600}
+.card .ro{color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 12px;font:12px var(--mono);color:var(--muted);grid-column:1/-1}
+.meta a{color:var(--accent)}
+.pill{font:500 11px var(--mono);padding:2px 8px;border-radius:999px;background:var(--line);color:var(--ink);white-space:nowrap}
+.pill.visa-yes{background:var(--accent-soft);color:var(--good)}
+.pill.visa-no{background:var(--bad-soft);color:var(--bad)}
+.pill.due{background:var(--warn-soft);color:var(--warn)}
+.stage-sel{width:auto;font-size:13px;padding:4px 8px}
+.card .notes{grid-column:1/-1;font-size:13px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
+.card .acts{grid-column:1/-1;display:flex;gap:6px;justify-content:flex-end}
+.link-btn{background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:2px 4px}
+.link-btn.bad{color:var(--bad)}
+.empty{color:var(--muted);text-align:center;padding:28px 12px;border:1px dashed var(--line);border-radius:12px}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;font-size:14px}
+.rules div{display:grid;gap:2px}
+.rules b{font-family:var(--display);font-size:15px}
+@media (prefers-reduced-motion:no-preference){.card{transition:border-color .15s}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Job search</div>
+      <h1>Job Hunt Tracker</h1>
+      <div class="sub">Every application, referral and recruiter call in one place</div>
+    </div>
+    <div style="display:grid;gap:6px;justify-items:end">
+      <button class="btn primary" id="addBtn" type="button">+ Add application</button>
+      <span class="status" id="status">Connecting to your tracker…</span>
+    </div>
+  </header>
+
+  <section class="pulse" aria-label="This week">
+    <div class="tile"><span class="l">Applied this week</span><span class="n" id="wkApplied">0</span>
+      <div class="meter"><i id="wkMeter" style="width:0%"></i></div>
+      <span class="l">goal <input class="goal-edit" id="goalApps" type="number" min="1" value="15" aria-label="Weekly application goal"></span></div>
+    <div class="tile"><span class="l">Referrals asked this week</span><span class="n" id="wkRef">0</span>
+      <div class="meter"><i id="refMeter" style="width:0%"></i></div>
+      <span class="l">goal <input class="goal-edit" id="goalRefs" type="number" min="1" value="5" aria-label="Weekly referral goal"></span></div>
+    <div class="tile"><span class="l">Response rate</span><span class="n" id="rate">–</span><span class="l" id="rateSub">screens ÷ applied</span></div>
+    <div class="tile"><span class="l">In interviews</span><span class="n" id="inInt">0</span><span class="l" id="offers">0 offers</span></div>
+    <div class="tile"><span class="l">Rejections</span><span class="n" id="rejN" style="color:var(--bad)">0</span><span class="l" id="rejSub">0% of applied</span></div>
+    <div class="tile"><span class="l">Follow-ups due</span><span class="n" id="dueN">0</span><span class="l">today or overdue</span></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>What's working</h2><span class="eyebrow">response rate by source</span></div>
+    <div class="panel sources" id="sources"></div>
+  </section>
+
+  <form class="panel" id="form" hidden>
+    <div class="section-head"><h2 id="formTitle">Add application</h2></div>
+    <div class="fgrid">
+      <label>Company<input id="f-company" required placeholder="e.g. Example Corp"></label>
+      <label>Role<input id="f-role" required placeholder="Software Engineer II, Frontend"></label>
+      <label>Job link<input id="f-url" type="url" placeholder="https://…"></label>
+      <label>Source<select id="f-source">
+        <option>Referral</option><option>Recruiter reached out</option><option>Company site</option><option>LinkedIn Easy Apply</option><option>Job board</option><option>Agency / Vendor</option></select></label>
+      <label>Stage<select id="f-stage"></select></label>
+      <label>Sponsors visa?<select id="f-visa"><option value="unknown">Unknown</option><option value="yes">Yes (H-1B / E-Verify)</option><option value="no">No sponsorship</option></select></label>
+      <label>Date applied<input id="f-applied" type="date"></label>
+      <label>Next action date<input id="f-next" type="date"></label>
+      <label>Contact / referrer<input id="f-contact" placeholder="Name, title"></label>
+      <label>Resume version<input id="f-resume" placeholder="e.g. frontend-v3"></label>
+    </div>
+    <label>Notes<textarea id="f-notes" placeholder="Salary range, interview rounds, what you said, next step…"></textarea></label>
+    <div class="row-actions">
+      <button class="btn" type="button" id="cancelBtn">Cancel</button>
+      <button class="btn primary" type="submit" id="saveBtn">Save</button>
+    </div>
+  </form>
+
+  <section class="section">
+    <div class="section-head"><h2>Pipeline</h2><div class="filters" id="filters"></div></div>
+    <div class="list" id="list"><div class="empty">Your applications will appear here. Tap <b>+ Add application</b> to log the first one.</div></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>House rules</h2></div>
+    <div class="panel rules">
+      <div><b>Log it within 5 minutes</b><span>Every application, referral ask and recruiter call goes here the same day.</span></div>
+      <div><b>Follow up on day 7</b><span>Moving a card to Applied sets the next action a week out. Add new info every time you nudge.</span></div>
+      <div><b>Personal devices only</b><span>Keep the search off your current employer's laptop, Wi-Fi and email.</span></div>
+      <div><b>Check visa before tailoring</b><span>Search the employer's past H-1B filings first. Mark "No sponsorship" and move on.</span></div>
+    </div>
+  </section>
+</div>
+
+<script>
+const STAGES=["Wishlist","Referral asked","Applied","Recruiter screen","Interviewing","Offer","Rejected","Ghosted","Withdrawn"];
+const RESPONDED=new Set(["Recruiter screen","Interviewing","Offer"]);
+const $=id=>document.getElementById(id);
+const state={apps:[],filter:"Active",db:null,editing:null,writable:true};
+const today=()=>new Date().toLocaleDateString("en-CA");
+const addDays=(d,n)=>{const x=new Date(d+"T12:00:00");x.setDate(x.getDate()+n);return x.toLocaleDateString("en-CA")};
+const weekStart=()=>{const d=new Date();const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return d.toLocaleDateString("en-CA")};
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=d=>d?new Date(d+"T12:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric"}):"";
+
+$("f-stage").innerHTML=STAGES.map(s=>`<option>${s}</option>`).join("");
+const FILTERS=["Active","Due","All",...STAGES];
+function renderFilters(){$("filters").innerHTML=FILTERS.map(f=>`<button type="button" class="chip" data-f="${esc(f)}" aria-pressed="${f===state.filter}">${esc(f)}</button>`).join("")}
+$("filters").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(!b)return;state.filter=b.dataset.f;renderFilters();renderList()});
+
+function isDue(a){return a.next&&a.next<=today()&&!["Rejected","Withdrawn","Offer","Skipped","Wishlist"].includes(a.stage)}
+function isActive(a){return !["Rejected","Ghosted","Withdrawn"].includes(a.stage)}
+
+function renderStats(){
+  const A=state.apps, ws=weekStart();
+  const applied=A.filter(a=>a.applied&&a.stage!=="Wishlist");
+  const wk=applied.filter(a=>a.applied>=ws).length;
+  const wkRef=A.filter(a=>a.source==="Referral"&&(a.created||"")>=ws).length;
+  const ga=+$("goalApps").value||15, gr=+$("goalRefs").value||5;
+  $("wkApplied").textContent=wk;$("wkMeter").style.width=Math.min(100,wk/ga*100)+"%";
+  $("wkRef").textContent=wkRef;$("refMeter").style.width=Math.min(100,wkRef/gr*100)+"%";
+  const resp=applied.filter(a=>RESPONDED.has(a.stage)||a.everScreened).length;
+  $("rate").textContent=applied.length?Math.round(resp/applied.length*100)+"%":"–";
+  $("rateSub").textContent=`${resp} of ${applied.length} got a screen`;
+  $("inInt").textContent=A.filter(a=>a.stage==="Interviewing").length;
+  const off=A.filter(a=>a.stage==="Offer").length;$("offers").textContent=off+(off===1?" offer":" offers");
+  $("dueN").textContent=A.filter(isDue).length;
+  const rej=A.filter(a=>a.stage==="Rejected");const rejWk=rej.filter(a=>(a.rejected||(a.updated||"").slice(0,10))>=ws).length;
+  $("rejN").textContent=rej.length;
+  $("rejSub").textContent=(applied.length?Math.round(rej.length/applied.length*100):0)+"% of applied · "+rejWk+" this week";
+  const by={};applied.forEach(a=>{const s=a.source||"Other";by[s]=by[s]||{n:0,r:0};by[s].n++;if(RESPONDED.has(a.stage)||a.everScreened)by[s].r++});
+  const rows=Object.entries(by).sort((x,y)=>y[1].n-x[1].n);
+  $("sources").innerHTML=rows.length?rows.map(([s,v])=>`<div class="srow"><span>${esc(s)}</span><div class="bar"><i style="width:${v.n?v.r/v.n*100:0}%"></i></div><span class="v">${v.r}/${v.n} · ${Math.round(v.r/v.n*100)}%</span></div>`).join("")
+    :`<div class="empty" style="border:none;padding:8px">Once you've logged a few applications, this shows which channel gets you screens. Expect referrals to beat cold applies by a wide margin.</div>`;
+}
+
+function renderList(){
+  let A=[...state.apps];
+  const f=state.filter;
+  if(f==="Active")A=A.filter(isActive);else if(f==="Due")A=A.filter(isDue);else if(f!=="All")A=A.filter(a=>a.stage===f);
+  A.sort((a,b)=>(isDue(b)-isDue(a))||((a.next||"9999")<(b.next||"9999")?-1:(a.next||"9999")>(b.next||"9999")?1:0)||((b.updated||"")>(a.updated||"")?1:-1));
+  if(!A.length){$("list").innerHTML=`<div class="empty">${state.apps.length?"Nothing in this view.":"Your applications will appear here. Tap <b>+ Add application</b> to log the first one."}</div>`;return}
+  $("list").innerHTML=A.map(a=>{
+    const due=isDue(a);
+    const visa=a.visa==="yes"?`<span class="pill visa-yes">sponsors</span>`:a.visa==="no"?`<span class="pill visa-no">no sponsorship</span>`:"";
+    return `<article class="card${due?" due":""}" data-id="${esc(a.id)}">
+      <div><div class="co">${esc(a.company)}</div><div class="ro">${esc(a.role)}</div></div>
+      <select class="stage-sel" data-stage="${esc(a.id)}" aria-label="Stage for ${esc(a.company)}" ${state.writable?"":"disabled"}>${STAGES.map(s=>`<option${s===a.stage?" selected":""}>${s}</option>`).join("")}</select>
+      <div class="meta">${due?`<span class="pill due">follow up ${a.next<today()?"overdue":"today"}</span>`:""}${visa}
+        <span>${esc(a.source||"")}</span>${a.applied?`<span>applied ${fmt(a.applied)}</span>`:""}${a.next&&!due?`<span>next ${fmt(a.next)}</span>`:""}
+        ${a.contact?`<span>${esc(a.contact)}</span>`:""}${a.resume?`<span>cv: ${esc(a.resume)}</span>`:""}${a.url?`<a href="${esc(a.url)}" target="_blank" rel="noopener">posting ↗</a>`:""}</div>
+      ${a.notes?`<div class="notes">${esc(a.notes)}</div>`:""}
+      ${state.writable?`<div class="acts">${due?`<button class="link-btn" data-snooze="${esc(a.id)}" type="button">Followed up · +7d</button>`:""}<button class="link-btn" data-edit="${esc(a.id)}" type="button">Edit</button><button class="link-btn bad" data-del="${esc(a.id)}" type="button">Delete</button></div>`:""}
+    </article>`}).join("");
+}
+function render(){renderStats();renderList()}
+
+function setStatus(t,err){$("status").textContent=t;$("status").classList.toggle("err",!!err)}
+function openForm(a){
+  state.editing=a?a.id:null;$("formTitle").textContent=a?"Edit application":"Add application";
+  const v=a||{source:"Referral",stage:"Wishlist",visa:"unknown"};
+  for(const k of ["company","role","url","source","stage","visa","applied","next","contact","resume","notes"])$("f-"+k).value=v[k]||"";
+  if(!a){$("f-source").value="Referral";$("f-stage").value="Wishlist";$("f-visa").value="unknown"}
+  $("form").hidden=false;$("f-company").focus();$("form").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$("addBtn").onclick=()=>openForm(null);
+$("cancelBtn").onclick=()=>{$("form").hidden=true};
+
+async function write(id,body,merge){
+  if(!state.db){setStatus("Not connected — changes can't be saved right now.",true);return false}
+  try{const ref=state.db.collection("apps").doc(id);merge?await ref.update(body):await ref.set(body);return true}
+  catch(e){setStatus(e&&e.code==="quota_exceeded"?"Tracker is full — delete old entries.":"Couldn't save: "+(e&&e.message||"unknown error"),true);return false}
+}
+$("form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const body={};for(const k of ["company","role","url","source","stage","visa","applied","next","contact","resume","notes"])body[k]=$("f-"+k).value.trim();
+  if(["Applied","Recruiter screen","Interviewing","Offer"].includes(body.stage)&&!body.applied)body.applied=today();
+  if(body.stage==="Applied"&&!body.next)body.next=addDays(body.applied||today(),7);
+  if(RESPONDED.has(body.stage))body.everScreened=true;
+  const prev=state.apps.find(a=>a.id===state.editing);
+  if(prev&&prev.everScreened)body.everScreened=true;
+  body.created=prev?.created||today();body.updated=new Date().toISOString();
+  const id=state.editing||("a"+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+  $("saveBtn").disabled=true;
+  if(await write(id,body,false)){$("form").hidden=true;setStatus("Saved")}
+  $("saveBtn").disabled=false;
+});
+$("list").addEventListener("change",async e=>{
+  const id=e.target.dataset.stage;if(!id)return;
+  const s=e.target.value,a=state.apps.find(x=>x.id===id),patch={stage:s,updated:new Date().toISOString()};
+  if(["Applied","Recruiter screen","Interviewing","Offer"].includes(s)&&!a.applied)patch.applied=today();
+  if(s==="Applied")patch.next=addDays(today(),7);
+  if(["Recruiter screen","Interviewing"].includes(s))patch.next=addDays(today(),3);
+  if(RESPONDED.has(s))patch.everScreened=true;
+  if(["Rejected","Withdrawn","Offer"].includes(s))patch.next="";
+  await write(id,patch,true);
+});
+let pendingDel=null;
+$("list").addEventListener("click",async e=>{
+  const t=e.target;
+  if(t.dataset.edit){openForm(state.apps.find(a=>a.id===t.dataset.edit));return}
+  if(t.dataset.snooze){await write(t.dataset.snooze,{next:addDays(today(),7),updated:new Date().toISOString()},true);return}
+  if(t.dataset.del){
+    if(pendingDel!==t.dataset.del){pendingDel=t.dataset.del;t.textContent="Tap again to delete";setTimeout(()=>{if(pendingDel===t.dataset.del){pendingDel=null;t.textContent="Delete"}},4000);return}
+    pendingDel=null;try{await state.db.collection("apps").doc(t.dataset.del).delete()}catch(err){setStatus("Couldn't delete: "+(err&&err.message||""),true)}
+  }
+});
+
+let goalTimer;
+function saveGoals(){clearTimeout(goalTimer);renderStats();goalTimer=setTimeout(async()=>{if(!state.db)return;try{await state.db.doc("meta/settings").set({goalApps:+$("goalApps").value||15,goalRefs:+$("goalRefs").value||5})}catch(e){}},800)}
+$("goalApps").addEventListener("input",saveGoals);$("goalRefs").addEventListener("input",saveGoals);
+
+renderFilters();render();
+(async()=>{
+  const db=await claude.use("db");
+  if(!db){setStatus("Open this page signed in to claude.ai to load your tracker.",true);$("addBtn").disabled=true;return}
+  state.db=db;
+  const user=await claude.use("user");
+  if(user){try{const w=await user.can("data.write");if(w===false){state.writable=false;$("addBtn").hidden=true;setStatus("Read-only view")}}catch(e){}}
+  const timer=setTimeout(()=>setStatus("Can't reach your tracker yet — check your connection.",true),10000);
+  db.collection("apps").onSnapshot(snap=>{
+    if(!snap.metadata.fromCache){clearTimeout(timer);if(state.writable)setStatus(`${snap.size} tracked · synced`)}
+    state.apps=snap.docs.map(d=>({id:d.id,...d.data()}));render();
+  },err=>{clearTimeout(timer);setStatus("Tracker stopped syncing ("+err.code+"). Reload to reconnect.",true)});
+  try{const s=await db.doc("meta/settings").get();if(s.exists){const v=s.data();if(v.goalApps)$("goalApps").value=v.goalApps;if(v.goalRefs)$("goalRefs").value=v.goalRefs;renderStats()}}catch(e){}
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,133 @@
+{
+ "_doc": "Your details for application forms. Copy to config/profile.json (git-ignored) and fill it in. Only put TRUE facts here: the form fillers type these answers into real applications.",
+ "name": {
+  "first": "Alex",
+  "last": "Doe",
+  "preferred": "Alex",
+  "full_legal": "Alex Q Doe"
+ },
+ "email": "you@example.com",
+ "phone": {
+  "digits": "5555550100",
+  "display": "555-555-0100",
+  "intl": "+1 555-555-0100",
+  "type": "Mobile"
+ },
+ "address": {
+  "line1": "123 Main St",
+  "city": "Austin",
+  "state": "Texas",
+  "zip": "78701",
+  "country": "United States",
+  "metro": "Austin, Texas, United States",
+  "metro_typed": "Austin, Tex"
+ },
+ "links": {
+  "linkedin": "https://www.linkedin.com/in/your-handle/",
+  "github": "",
+  "website": ""
+ },
+ "resume_pdf": "/ABSOLUTE/PATH/job-hunt-agent/resume/upload/Your_Name_Resume.pdf",
+ "resume_filename_regex": "Your_Name_Resume\\.pdf",
+ "work_auth": {
+  "authorized_us": true,
+  "needs_sponsorship": true,
+  "visa_type": "H-1B",
+  "sponsorship_details": "Describe your situation in one or two plain sentences, e.g. current visa and what the employer would need to file.",
+  "visa_status_text": "H-1B (needs transfer)"
+ },
+ "years_experience": 4,
+ "years_answer_regex": "^4\\+|^4 ?- ?\\d|^3 ?- ?5|^4 years",
+ "salary_text": "$150,000 base (negotiable)",
+ "salary_short": "$150,000",
+ "notice_text": "2 weeks",
+ "notice_long": "2 weeks notice",
+ "location_preference": "Austin, TX area; open to relocating anywhere in the US",
+ "open_to_relocate": true,
+ "open_to_onsite": true,
+ "how_heard": "Company careers site",
+ "eeo": {
+  "_doc": "Voluntary self-ID. Each value is a regex matched against the form's option text. Use a 'decline' regex if you prefer not to answer.",
+  "gender": "^(\\d\\. )?(Male|Man)$|decline|prefer not",
+  "hispanic": "^No$",
+  "race": "^Asian( \\(|$)|South Asian",
+  "veteran": "not a (protected )?veteran",
+  "disability": "^No,|^No(,? I (do not|don.?t) have.*)?$",
+  "transgender": "don.?t wish|decline|prefer not",
+  "orientation": "don.?t wish|decline|prefer not"
+ },
+ "education": [
+  {
+   "school": "Example University",
+   "degree": "Master's Degree",
+   "degree_regex": "^(Master|MS\\b|M\\.S\\.?$)",
+   "major": "Computer Science"
+  },
+  {
+   "school": "Example College",
+   "degree": "Bachelor's Degree",
+   "degree_regex": "^(Bachelor|B\\.Tech|B\\.Eng|BS\\b|B\\.S\\.?$)",
+   "major": "Computer Science"
+  }
+ ],
+ "work_history": [
+  {
+   "employer": "Current Co",
+   "title": "Software Engineer",
+   "current": true,
+   "start_month": "January",
+   "start_year": "2023",
+   "end_month": null,
+   "end_year": null,
+   "description": "Two or three plain sentences about what you built, with real numbers."
+  },
+  {
+   "employer": "Previous Co",
+   "title": "Software Developer",
+   "current": false,
+   "start_month": "June",
+   "start_year": "2020",
+   "end_month": "December",
+   "end_year": "2022",
+   "description": "Two or three plain sentences."
+  }
+ ],
+ "evidence_of_excellence": "One paragraph on your strongest, verifiable achievement (Tesla asks for this).",
+ "amazon_years": {
+  "_doc": "Amazon screening dropdowns: option text to pick for each question type.",
+  "professional_sde": [
+   "4 years to less than 5 years",
+   "more than 3 years"
+  ],
+  "design_architecture": [
+   "2 years to less than 3 years"
+  ],
+  "language_years": [
+   "2 years to less than 3 years"
+  ],
+  "ood_or_sde_occupation": [
+   "more than 3 years",
+   "3 years to less than 4 years"
+  ]
+ },
+ "workday_experience_bands": {
+  "_doc": "Workday 'how much experience with X' questions: label regex -> option regex.",
+  "Network Technology|Network Operations|Wireless": "^Less than 1 Year$",
+  "Software Engineering|Big Data|Cloud Technology|Security|Product (Management|Development)|Project Management": "^3 - 5 Years$"
+ },
+ "start_date_offset_days": 14,
+ "repo_dir": "/ABSOLUTE/PATH/job-hunt-agent",
+ "overleaf": {
+  "_doc": "Optional. Leave project_url empty to compile locally with pdflatex instead.",
+  "project_url": "",
+  "base_tex": "/ABSOLUTE/PATH/job-hunt-agent/resume/base.tex"
+ },
+ "tracker": {
+  "_doc": "URL of YOUR tracker artifact (see setup/SETUP.md step 4) and the database collection name.",
+  "url": "",
+  "collection": "apps"
+ },
+ "owner_label": "the candidate",
+ "auto_submit": true,
+ "job_search_email_note": "email above is the address used for career-site accounts"
+}

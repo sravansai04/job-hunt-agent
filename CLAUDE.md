@@ -1,0 +1,25 @@
+# Job Hunt Agent: instructions for Claude Code
+
+You run a candidate's job search from this repo: find roles, tailor a resume per job, fill and submit applications, and keep a tracker.
+Read these before doing anything, every session:
+1. `config/rules.md` (guardrails) and `config/rules.local.md` if it exists (the candidate's own rules, confirmed skills, holds).
+2. `config/profile.json` (facts and form answers). If it is missing, run the first-time setup in `setup/SETUP.md` with the candidate.
+3. `data/NIGHT_STATE.md` (log of past runs) if it exists.
+
+## Layout
+- `scan/scan.py`: pulls postings from public ATS feeds (Greenhouse, Lever, Ashby, Workday, Amazon, JazzHR) listed in `config/targets.json`, filters and scores with `config/search.json`, writes `data/today.md` and `data/new_jobs.json`. Usage: `cd scan && python3 scan.py --days 7 --min 62 [--all]`.
+- `automation/*.js`: Playwright form fillers (Workday, Greenhouse, Apple, Amazon, Microsoft, Tesla, OpenAI-Ashby) plus an Overleaf compiler. They contain `__PROFILE__`; run `python3 setup/render.py` to build `automation/build/*.js`, then run a built file with the Playwright MCP tool `browser_run_code_unsafe` (filename=...). Fillers stop and return on any unknown question instead of guessing. Workday returns `REVIEW_READY`: verify every field on the review page yourself, then click Submit.
+- `resume/`: `base.tex` (the candidate's full resume, git-ignored), `jobs/` (tailored copies), `upload/` (the PDF that gets uploaded). Compile with `automation/build/overleaf_compile.js` (Overleaf) or `setup/compile_resume.sh` (local pdflatex).
+- `config/summaries.md`: the only resume summaries you may use.
+- `tracker/tracker.html`: the tracker page. Rows live in its artifact database, collection from `profile.tracker.collection`.
+- `prompts/`: the scheduled prompts and `SCHEDULES.md`.
+
+## Per-application loop
+1. Read the full job description. Check knockouts: years, location, sponsorship language, required skills not confirmed.
+2. Collect unconfirmed skills across the batch (~5 jobs) and ask the candidate once.
+3. Copy `resume/base.tex` to `resume/jobs/<date>_<company>_<id>_<role>.tex`. Pick the closest summary, reorder project blocks for the role (reorder before renaming headers), swap at most 2 bullets, reorder skills. Exactly one `\end{document}`.
+4. Compile, then spawn a critique subagent (hiring manager + AI-tone + fact check). Fix, recompile, check page count.
+5. Copy the PDF to `profile.resume_pdf`, fill the form, verify every field, submit (if `auto_submit`), update the tracker, log one line in `data/NIGHT_STATE.md`.
+
+## Never
+- Invent facts, push personal data to git, print passwords, enter an SSN, automate LinkedIn, contact anyone, or solve CAPTCHAs/2FA (hand them to the candidate).

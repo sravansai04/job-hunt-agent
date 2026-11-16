@@ -1,0 +1,456 @@
+{
+ "_note": "Company sources. Each entry: [tier (1 best..3), display name, sponsorship ('likely'/'check'/'no')]. Workday: [tier, host, tenant, site, sponsorship]. Remove companies you don't want and add your own. 'browser_only' sites have no public feed; Claude checks them in the browser.",
+ "amazon": {
+  "tier": 1,
+  "sponsor": "likely",
+  "queries": [
+   "software development engineer",
+   "full stack engineer",
+   "frontend engineer"
+  ]
+ },
+ "browser_only": {
+  "Meta": {
+   "tier": 1,
+   "url": "https://www.metacareers.com/jobs?q=software%20engineer&sort_by_new=true"
+  },
+  "Google": {
+   "tier": 1,
+   "url": "https://www.google.com/about/careers/applications/jobs/results?q=software%20engineer&location=United%20States&sort_by=date"
+  },
+  "Microsoft": {
+   "tier": 1,
+   "url": "https://careers.microsoft.com/v2/global/en/search?q=software%20engineer&lc=United%20States&o=Recent"
+  },
+  "Apple": {
+   "tier": 1,
+   "url": "https://jobs.apple.com/en-us/search?search=software%20engineer&location=united-states-USA&sort=newest"
+  },
+  "Uber": {
+   "tier": 1,
+   "url": "https://www.uber.com/us/en/careers/list/?query=software%20engineer"
+  },
+  "Confluent": {
+   "tier": 2,
+   "url": "https://careers.confluent.io/open-positions/engineering"
+  },
+  "Atlassian": {
+   "tier": 2,
+   "url": "https://www.atlassian.com/company/careers/all-jobs?team=Engineering&location=United%20States"
+  },
+  "ServiceNow": {
+   "tier": 2,
+   "url": "https://jobs.smartrecruiters.com/ServiceNow"
+  },
+  "JPMorgan Chase": {
+   "tier": 3,
+   "url": "https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/requisitions?keyword=software%20engineer&location=Plano"
+  },
+  "Goldman Sachs": {
+   "tier": 3,
+   "url": "https://higher.gs.com/results?LOCATION=Dallas&search=engineer"
+  }
+ },
+ "greenhouse": {
+  "anthropic": [
+   2,
+   "Anthropic",
+   "likely"
+  ],
+  "stripe": [
+   2,
+   "Stripe",
+   "likely"
+  ],
+  "datadog": [
+   2,
+   "Datadog",
+   "likely"
+  ],
+  "databricks": [
+   2,
+   "Databricks",
+   "likely"
+  ],
+  "airbnb": [
+   1,
+   "Airbnb",
+   "likely"
+  ],
+  "coinbase": [
+   2,
+   "Coinbase",
+   "likely"
+  ],
+  "doordashusa": [
+   2,
+   "DoorDash",
+   "likely"
+  ],
+  "robinhood": [
+   2,
+   "Robinhood",
+   "likely"
+  ],
+  "figma": [
+   2,
+   "Figma",
+   "likely"
+  ],
+  "discord": [
+   2,
+   "Discord",
+   "likely"
+  ],
+  "dropbox": [
+   2,
+   "Dropbox",
+   "likely"
+  ],
+  "pinterest": [
+   2,
+   "Pinterest",
+   "likely"
+  ],
+  "reddit": [
+   2,
+   "Reddit",
+   "likely"
+  ],
+  "lyft": [
+   2,
+   "Lyft",
+   "likely"
+  ],
+  "instacart": [
+   2,
+   "Instacart",
+   "likely"
+  ],
+  "cloudflare": [
+   2,
+   "Cloudflare",
+   "likely"
+  ],
+  "mongodb": [
+   2,
+   "MongoDB",
+   "likely"
+  ],
+  "gitlab": [
+   2,
+   "GitLab",
+   "check"
+  ],
+  "twilio": [
+   2,
+   "Twilio",
+   "likely"
+  ],
+  "elastic": [
+   2,
+   "Elastic",
+   "check"
+  ],
+  "samsara": [
+   2,
+   "Samsara",
+   "likely"
+  ],
+  "toast": [
+   2,
+   "Toast",
+   "check"
+  ],
+  "okta": [
+   2,
+   "Okta",
+   "likely"
+  ],
+  "affirm": [
+   2,
+   "Affirm",
+   "likely"
+  ],
+  "brex": [
+   2,
+   "Brex",
+   "check"
+  ],
+  "block": [
+   2,
+   "Block",
+   "likely"
+  ],
+  "asana": [
+   2,
+   "Asana",
+   "likely"
+  ],
+  "vercel": [
+   2,
+   "Vercel",
+   "check"
+  ],
+  "scaleai": [
+   2,
+   "Scale AI",
+   "likely"
+  ],
+  "nuro": [
+   2,
+   "Nuro",
+   "likely"
+  ],
+  "waymo": [
+   1,
+   "Waymo",
+   "likely"
+  ],
+  "duolingo": [
+   2,
+   "Duolingo",
+   "likely"
+  ],
+  "roblox": [
+   2,
+   "Roblox",
+   "likely"
+  ],
+  "airtable": [
+   2,
+   "Airtable",
+   "check"
+  ],
+  "grafanalabs": [
+   2,
+   "Grafana Labs",
+   "check"
+  ],
+  "mixpanel": [
+   2,
+   "Mixpanel",
+   "likely"
+  ],
+  "sigmacomputing": [
+   2,
+   "Sigma Computing",
+   "likely"
+  ],
+  "gleanwork": [
+   2,
+   "Glean",
+   "likely"
+  ],
+  "chime": [
+   2,
+   "Chime",
+   "likely"
+  ],
+  "toyotaconnected": [
+   3,
+   "Toyota Connected",
+   "check"
+  ]
+ },
+ "lever": {
+  "palantir": [
+   2,
+   "Palantir",
+   "likely"
+  ],
+  "spotify": [
+   2,
+   "Spotify",
+   "likely"
+  ]
+ },
+ "ashby": {
+  "openai": [
+   1,
+   "OpenAI",
+   "likely"
+  ],
+  "notion": [
+   2,
+   "Notion",
+   "check"
+  ],
+  "ramp": [
+   2,
+   "Ramp",
+   "check"
+  ],
+  "linear": [
+   2,
+   "Linear",
+   "check"
+  ],
+  "snowflake": [
+   1,
+   "Snowflake",
+   "likely"
+  ],
+  "cursor": [
+   2,
+   "Cursor (Anysphere)",
+   "check"
+  ],
+  "clickhouse": [
+   2,
+   "ClickHouse",
+   "check"
+  ],
+  "sentry": [
+   2,
+   "Sentry",
+   "check"
+  ],
+  "temporal": [
+   2,
+   "Temporal",
+   "likely"
+  ],
+  "amplitude": [
+   2,
+   "Amplitude",
+   "likely"
+  ],
+  "sierra": [
+   2,
+   "Sierra",
+   "likely"
+  ],
+  "decagon": [
+   2,
+   "Decagon",
+   "likely"
+  ],
+  "plaid": [
+   2,
+   "Plaid",
+   "likely"
+  ]
+ },
+ "workday": {
+  "NVIDIA": [
+   1,
+   "nvidia.wd5.myworkdayjobs.com",
+   "nvidia",
+   "NVIDIAExternalCareerSite",
+   "likely"
+  ],
+  "Salesforce": [
+   1,
+   "salesforce.wd12.myworkdayjobs.com",
+   "salesforce",
+   "External_Career_Site",
+   "likely"
+  ],
+  "Adobe": [
+   1,
+   "adobe.wd5.myworkdayjobs.com",
+   "adobe",
+   "external_experienced",
+   "likely"
+  ],
+  "Capital One": [
+   3,
+   "capitalone.wd12.myworkdayjobs.com",
+   "capitalone",
+   "Capital_One",
+   "likely"
+  ],
+  "Cisco": [
+   3,
+   "cisco.wd5.myworkdayjobs.com",
+   "cisco",
+   "Cisco_Careers",
+   "likely"
+  ],
+  "PayPal": [
+   2,
+   "paypal.wd1.myworkdayjobs.com",
+   "paypal",
+   "jobs",
+   "likely"
+  ],
+  "Intel": [
+   3,
+   "intel.wd1.myworkdayjobs.com",
+   "intel",
+   "External",
+   "check"
+  ],
+  "Mastercard": [
+   3,
+   "mastercard.wd1.myworkdayjobs.com",
+   "mastercard",
+   "CorporateCareers",
+   "likely"
+  ],
+  "AT&T": [
+   3,
+   "att.wd1.myworkdayjobs.com",
+   "att",
+   "ATTGeneral",
+   "check"
+  ],
+  "Fidelity": [
+   3,
+   "fmr.wd1.myworkdayjobs.com",
+   "fmr",
+   "FidelityCareers",
+   "likely"
+  ],
+  "Zillow": [
+   2,
+   "zillow.wd5.myworkdayjobs.com",
+   "zillow",
+   "Zillow_Group_External",
+   "likely"
+  ],
+  "Expedia": [
+   3,
+   "expedia.wd108.myworkdayjobs.com",
+   "expedia",
+   "search",
+   "likely"
+  ],
+  "Visa": [
+   3,
+   "visa.wd5.myworkdayjobs.com",
+   "visa",
+   "Visa",
+   "likely"
+  ],
+  "Bank of America": [
+   3,
+   "ghr.wd1.myworkdayjobs.com",
+   "ghr",
+   "Lateral-US",
+   "check"
+  ],
+  "Wells Fargo": [
+   3,
+   "wf.wd1.myworkdayjobs.com",
+   "wf",
+   "WellsFargoJobs",
+   "check"
+  ],
+  "Citi": [
+   3,
+   "citi.wd5.myworkdayjobs.com",
+   "citi",
+   "2",
+   "check"
+  ]
+ },
+ "jazzhr": {
+  "ouster": [
+   3,
+   "Ouster",
+   "likely"
+  ]
+ }
+}
