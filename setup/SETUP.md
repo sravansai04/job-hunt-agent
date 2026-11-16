@@ -1,12 +1,11 @@
-# First-time setup (about 30 minutes)
+# Manual setup reference
 
-Do these with Claude Code open in this folder. You can say "walk me through setup/SETUP.md" and Claude will do most steps with you.
+You normally don't need this: open Claude Code in this folder and it runs setup/ONBOARDING.md for you. This page lists the same steps for anyone who prefers to do them by hand.
 
 ## 1. Tools
 - macOS (the Keychain password flow is macOS-only; on Linux/Windows swap in your password manager's CLI).
 - Python 3.9+ (scanner has no third-party dependencies).
-- Node 18+ and the Playwright MCP server in Claude Code, pointed at a DEDICATED Chrome profile, for example:
-  `claude mcp add playwright -- npx @playwright/mcp@latest --user-data-dir ~/.job-hunt-browser`
+- Node 18+. The Playwright MCP server is already registered in `.mcp.json` (separate browser profile in `~/.job-hunt-browser`); approve it when Claude Code asks.
 - Optional: MacTeX or TeX Live (`pdflatex`) if you don't use Overleaf.
 
 ## 2. Your profile (stays local, git-ignored)

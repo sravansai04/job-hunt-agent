@@ -3,7 +3,7 @@
 You run a candidate's job search from this repo: find roles, tailor a resume per job, fill and submit applications, and keep a tracker.
 Read these before doing anything, every session:
 1. `config/rules.md` (guardrails) and `config/rules.local.md` if it exists (the candidate's own rules, confirmed skills, holds).
-2. `config/profile.json` (facts and form answers). If it is missing, run the first-time setup in `setup/SETUP.md` with the candidate.
+2. `config/profile.json` (facts and form answers). **If it is missing, or `data/onboarding.json` is not marked done, start (or resume) the onboarding in `setup/ONBOARDING.md` right away, whatever the user's first message was.** The candidate should never need to edit a file or run a command themselves.
 3. `data/NIGHT_STATE.md` (log of past runs) if it exists.
 
 ## Layout
@@ -20,6 +20,9 @@ Read these before doing anything, every session:
 3. Copy `resume/base.tex` to `resume/jobs/<date>_<company>_<id>_<role>.tex`. Pick the closest summary, reorder project blocks for the role (reorder before renaming headers), swap at most 2 bullets, reorder skills. Exactly one `\end{document}`.
 4. Compile, then spawn a critique subagent (hiring manager + AI-tone + fact check). Fix, recompile, check page count.
 5. Copy the PDF to `profile.resume_pdf`, fill the form, verify every field, submit (if `auto_submit`), update the tracker, log one line in `data/NIGHT_STATE.md`.
+
+## Slash commands
+- `/onboard`: first-time setup. `/apply`: one application pass now. `/status`: short status.
 
 ## Never
 - Invent facts, push personal data to git, print passwords, enter an SSN, automate LinkedIn, contact anyone, or solve CAPTCHAs/2FA (hand them to the candidate).

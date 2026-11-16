@@ -1,0 +1,35 @@
+{
+  "enabledMcpjsonServers": ["playwright"],
+  "permissions": {
+    "allow": [
+      "mcp__playwright",
+      "Read",
+      "Edit(config/**)",
+      "Edit(resume/**)",
+      "Edit(data/**)",
+      "Write(config/**)",
+      "Write(resume/**)",
+      "Write(data/**)",
+      "Bash(python3 scan/scan.py:*)",
+      "Bash(cd scan && python3 scan.py:*)",
+      "Bash(python3 setup/render.py)",
+      "Bash(python3 setup/check_private.py)",
+      "Bash(./setup/install.sh:*)",
+      "Bash(setup/install.sh:*)",
+      "Bash(setup/compile_resume.sh:*)",
+      "Bash(security find-generic-password -s jobhunt\\:*)",
+      "Bash(security add-generic-password -s jobhunt\\:*)",
+      "Bash(pbcopy)",
+      "Bash(printf '' | pbcopy)",
+      "Bash(textutil -convert txt:*)",
+      "Bash(date)",
+      "Bash(ls:*)",
+      "Bash(stat:*)",
+      "Bash(open:*)"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Read(~/.ssh/**)"
+    ]
+  }
+}

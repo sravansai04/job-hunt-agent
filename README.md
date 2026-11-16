@@ -10,8 +10,24 @@ A Claude Code setup that runs a software-engineering job search end to end:
 
 Everything personal (profile, resume, tracker URL, logs) lives in git-ignored files. The repo only holds code, templates and examples.
 
-## Quick start
-See [setup/SETUP.md](setup/SETUP.md). Then open Claude Code in this folder and say "Keep applying" or run the prompt in `prompts/keep_applying.md`.
+## Quick start (no setup by hand)
+1. Install [Claude Code](https://claude.com/claude-code) and sign in.
+2. `git clone <this repo> && cd job-hunt-agent && claude`
+3. Say hi. Claude sees there's no profile yet and starts onboarding:
+   - installs what's missing (Node, the Playwright browser, optional LaTeX)
+   - asks for your resume (drop in a PDF or DOCX) and converts it to LaTeX
+   - interviews you about your projects, skills, numbers and what you want next, asking follow-ups until it can tailor honestly
+   - asks for every permission once (browser control, Keychain for site passwords, auto-submit or approve-each)
+   - opens a separate browser so you can sign in to Gmail (and Overleaf), then creates career-site accounts and reads verification emails itself
+   - publishes your private tracker, runs a first scan, does one application with you, and turns on the schedules
+
+After that it runs on its own. It only stops for CAPTCHAs, 2FA codes and questions only you can answer.
+
+### From your phone
+Start Claude Code with `claude --remote-control "Job Hunt"` and keep the Mac awake. The session appears in the Claude mobile app, where you can see progress, answer questions and say "status" or "apply now". The tracker link works in any phone browser. CAPTCHAs still need the Mac.
+
+Commands: `/onboard` (re-run setup), `/apply` (one pass now), `/status`.
+Manual setup reference: [setup/SETUP.md](setup/SETUP.md).
 
 ## Use it responsibly
 - **Only true answers.** The fillers type exactly what's in your profile into real applications.
@@ -27,6 +43,7 @@ automation/  form fillers + Overleaf compiler (render with setup/render.py)
 resume/      template.tex, summaries example; your base.tex/jobs/upload stay local
 tracker/     tracker.html
 prompts/     scheduled prompts + SCHEDULES.md
-setup/       SETUP.md, render.py, check_private.py, compile_resume.sh, git hooks
+setup/       ONBOARDING.md (what Claude runs), install.sh, render.py, check_private.py, compile_resume.sh, hooks
+.claude/     project permissions + slash commands; .mcp.json registers the Playwright browser
 CLAUDE.md    instructions Claude reads every session
 ```
