@@ -98,6 +98,7 @@ textarea{min-height:70px;resize:vertical}
   </header>
 
   <section class="pulse" aria-label="This week">
+    <div class="tile"><span class="l">Total applied</span><span class="n" id="totApplied">0</span><span class="l" id="totSub">all time</span></div>
     <div class="tile"><span class="l">Applied this week</span><span class="n" id="wkApplied">0</span>
       <div class="meter"><i id="wkMeter" style="width:0%"></i></div>
       <span class="l">goal <input class="goal-edit" id="goalApps" type="number" min="1" value="15" aria-label="Weekly application goal"></span></div>
@@ -107,7 +108,7 @@ textarea{min-height:70px;resize:vertical}
     <div class="tile"><span class="l">Response rate</span><span class="n" id="rate">–</span><span class="l" id="rateSub">screens ÷ applied</span></div>
     <div class="tile"><span class="l">In interviews</span><span class="n" id="inInt">0</span><span class="l" id="offers">0 offers</span></div>
     <div class="tile"><span class="l">Rejections</span><span class="n" id="rejN" style="color:var(--bad)">0</span><span class="l" id="rejSub">0% of applied</span></div>
-    <div class="tile"><span class="l">Follow-ups due</span><span class="n" id="dueN">0</span><span class="l">today or overdue</span></div>
+    <div class="tile"><span class="l">No reply, 7+ days</span><span class="n" id="dueN">0</span><span class="l">applied a week ago or more</span></div>
   </section>
 
   <section class="section">
@@ -154,7 +155,8 @@ textarea{min-height:70px;resize:vertical}
 </div>
 
 <script>
-const STAGES=["Wishlist","Referral asked","Applied","Recruiter screen","Interviewing","Offer","Rejected","Ghosted","Withdrawn"];
+const STAGES=["Wishlist","Referral asked","Referred","Applied","Under review","Recruiter screen","Interviewing","Offer","Rejected","Ghosted","Withdrawn","Skipped"];
+const NOT_APPLIED=new Set(["Wishlist","Referral asked","Skipped"]);
 const RESPONDED=new Set(["Recruiter screen","Interviewing","Offer"]);
 const $=id=>document.getElementById(id);
 const state={apps:[],filter:"Active",db:null,editing:null,writable:true};
@@ -165,17 +167,22 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const fmt=d=>d?new Date(d+"T12:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric"}):"";
 
 $("f-stage").innerHTML=STAGES.map(s=>`<option>${s}</option>`).join("");
-const FILTERS=["Active","Due","All",...STAGES];
+const FILTERS=["Active","Waiting 7d+","All",...STAGES];
 function renderFilters(){$("filters").innerHTML=FILTERS.map(f=>`<button type="button" class="chip" data-f="${esc(f)}" aria-pressed="${f===state.filter}">${esc(f)}</button>`).join("")}
 $("filters").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(!b)return;state.filter=b.dataset.f;renderFilters();renderList()});
 
-function isDue(a){return a.next&&a.next<=today()&&!["Rejected","Withdrawn","Offer","Skipped","Wishlist"].includes(a.stage)}
-function isActive(a){return !["Rejected","Ghosted","Withdrawn"].includes(a.stage)}
+function isApp(a){return !!a.company}
+function hasApplied(a){return isApp(a)&&!NOT_APPLIED.has(a.stage)&&(a.applied||["Applied","Under review","Recruiter screen","Interviewing","Offer","Rejected","Ghosted","Withdrawn","Referred"].includes(a.stage))}
+function isWaiting(a){return ["Applied","Under review","Referred"].includes(a.stage)&&a.applied&&a.applied<=addDays(today(),-7)}
+function isDue(a){return isWaiting(a)}
+function isActive(a){return isApp(a)&&!["Rejected","Ghosted","Withdrawn","Skipped"].includes(a.stage)}
 
 function renderStats(){
   const A=state.apps, ws=weekStart();
-  const applied=A.filter(a=>a.applied&&a.stage!=="Wishlist");
-  const wk=applied.filter(a=>a.applied>=ws).length;
+  const applied=A.filter(hasApplied);
+  $("totApplied").textContent=applied.length;
+  $("totSub").textContent=A.filter(a=>isApp(a)&&a.stage==="Wishlist").length+" on wishlist · "+A.filter(a=>isApp(a)&&a.stage==="Skipped").length+" skipped";
+  const wk=applied.filter(a=>(a.applied||"")>=ws).length;
   const wkRef=A.filter(a=>a.source==="Referral"&&(a.created||"")>=ws).length;
   const ga=+$("goalApps").value||15, gr=+$("goalRefs").value||5;
   $("wkApplied").textContent=wk;$("wkMeter").style.width=Math.min(100,wk/ga*100)+"%";
@@ -198,7 +205,7 @@ function renderStats(){
 function renderList(){
   let A=[...state.apps];
   const f=state.filter;
-  if(f==="Active")A=A.filter(isActive);else if(f==="Due")A=A.filter(isDue);else if(f!=="All")A=A.filter(a=>a.stage===f);
+  if(f==="Active")A=A.filter(isActive);else if(f==="Waiting 7d+")A=A.filter(isDue);else if(f==="All")A=A.filter(isApp);else A=A.filter(a=>isApp(a)&&a.stage===f);
   A.sort((a,b)=>(isDue(b)-isDue(a))||((a.next||"9999")<(b.next||"9999")?-1:(a.next||"9999")>(b.next||"9999")?1:0)||((b.updated||"")>(a.updated||"")?1:-1));
   if(!A.length){$("list").innerHTML=`<div class="empty">${state.apps.length?"Nothing in this view.":"Your applications will appear here. Tap <b>+ Add application</b> to log the first one."}</div>`;return}
   $("list").innerHTML=A.map(a=>{
@@ -207,11 +214,11 @@ function renderList(){
     return `<article class="card${due?" due":""}" data-id="${esc(a.id)}">
       <div><div class="co">${esc(a.company)}</div><div class="ro">${esc(a.role)}</div></div>
       <select class="stage-sel" data-stage="${esc(a.id)}" aria-label="Stage for ${esc(a.company)}" ${state.writable?"":"disabled"}>${STAGES.map(s=>`<option${s===a.stage?" selected":""}>${s}</option>`).join("")}</select>
-      <div class="meta">${due?`<span class="pill due">follow up ${a.next<today()?"overdue":"today"}</span>`:""}${visa}
+      <div class="meta">${due?`<span class="pill due">no reply 7d+</span>`:""}${visa}
         <span>${esc(a.source||"")}</span>${a.applied?`<span>applied ${fmt(a.applied)}</span>`:""}${a.next&&!due?`<span>next ${fmt(a.next)}</span>`:""}
         ${a.contact?`<span>${esc(a.contact)}</span>`:""}${a.resume?`<span>cv: ${esc(a.resume)}</span>`:""}${a.url?`<a href="${esc(a.url)}" target="_blank" rel="noopener">posting ↗</a>`:""}</div>
       ${a.notes?`<div class="notes">${esc(a.notes)}</div>`:""}
-      ${state.writable?`<div class="acts">${due?`<button class="link-btn" data-snooze="${esc(a.id)}" type="button">Followed up · +7d</button>`:""}<button class="link-btn" data-edit="${esc(a.id)}" type="button">Edit</button><button class="link-btn bad" data-del="${esc(a.id)}" type="button">Delete</button></div>`:""}
+      ${state.writable?`<div class="acts"><button class="link-btn" data-edit="${esc(a.id)}" type="button">Edit</button><button class="link-btn bad" data-del="${esc(a.id)}" type="button">Delete</button></div>`:""}
     </article>`}).join("");
 }
 function render(){renderStats();renderList()}
