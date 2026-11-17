@@ -7,7 +7,9 @@
    "software development engineer",
    "full stack engineer",
    "frontend engineer"
-  ]
+  ],
+  "disabled": false,
+  "_doc": "Set disabled to true to skip Amazon's feed (for example while interviewing there)."
  },
  "browser_only": {
   "Meta": {

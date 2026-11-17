@@ -329,7 +329,9 @@ function agePill(a){const d=age(a);if(d==null||!["Applied","Referred","Under rev
 
 /* ---------- tooltip ---------- */
 const tip=$("tip");
-document.addEventListener("pointermove",e=>{const t=e.target.closest("[data-tip]");if(!t){tip.hidden=true;return}tip.innerHTML=t.dataset.tip;tip.hidden=false;const w=tip.offsetWidth,h=tip.offsetHeight;let x=e.clientX+14,y=e.clientY+14;if(x+w>innerWidth-8)x=e.clientX-w-14;if(y+h>innerHeight-8)y=e.clientY-h-14;tip.style.left=x+"px";tip.style.top=y+"px"});
+// data-tip values are read back decoded, so escape everything again and re-allow only <b> and <br>.
+const safeTip=s=>esc(s).replace(/&lt;(\/?b|br)&gt;/g,"<$1>");
+document.addEventListener("pointermove",e=>{const t=e.target.closest("[data-tip]");if(!t){tip.hidden=true;return}tip.innerHTML=safeTip(t.dataset.tip);tip.hidden=false;const w=tip.offsetWidth,h=tip.offsetHeight;let x=e.clientX+14,y=e.clientY+14;if(x+w>innerWidth-8)x=e.clientX-w-14;if(y+h>innerHeight-8)y=e.clientY-h-14;tip.style.left=x+"px";tip.style.top=y+"px"});
 document.addEventListener("pointerleave",()=>tip.hidden=true);
 
 /* ---------- KPIs ---------- */

@@ -1,9 +1,11 @@
 {
-  "enabledMcpjsonServers": ["playwright"],
+  "enabledMcpjsonServers": [
+    "playwright"
+  ],
   "permissions": {
     "allow": [
       "mcp__playwright",
-      "Read",
+      "Read(./**)",
       "Edit(config/**)",
       "Edit(resume/**)",
       "Edit(data/**)",
@@ -25,11 +27,15 @@
       "Bash(date)",
       "Bash(ls:*)",
       "Bash(stat:*)",
-      "Bash(open:*)"
+      "Bash(open https\\://*)"
     ],
     "deny": [
       "Bash(git push:*)",
-      "Read(~/.ssh/**)"
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/Library/Keychains/**)",
+      "Bash(curl * -d *)",
+      "Bash(curl * --data*)"
     ]
   }
 }

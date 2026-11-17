@@ -3,6 +3,6 @@ Keep applying (follow CLAUDE.md, config/rules.md, config/rules.local.md and conf
 1) Pick the next 3-5 best-fit roles: tracker Wishlist rows plus fresh scan matches. Skip anything with a years knockout above the profile, no-sponsorship language (if sponsorship is needed), or required skills the candidate hasn't confirmed.
 2) If any job descriptions need unconfirmed skills, ask ONE batched AskUserQuestion for the set.
 3) Tailor resume/base.tex per job (reorder blocks before renaming headers; exactly one \end{document}), save to resume/jobs/<date>_<company>_<id>_<role>.tex, compile (automation/build/overleaf_compile.js or setup/compile_resume.sh), run the critique subagent, fix, recompile, and stage the PDF at the profile's resume_pdf path.
-4) Fill the form with the matching automation/build/*_fill.js, verify every field, and submit if auto_submit is true (otherwise ask for a go).
+4) Fill the form with the matching automation/build/*_fill.js (use direct setInputFiles for uploads, never click an Upload button that opens a file dialog), verify every field (re-check the address after the resume parse), and submit if auto_submit is true and today's Applied count is under daily_cap (otherwise ask for a go).
 5) Stop and leave the tab open for CAPTCHAs, 2FA or unknown legal questions; note it in the tracker.
 6) Update the tracker after each submit, append one line to data/NIGHT_STATE.md, close the browser (browser_close) unless a tab is waiting on the candidate, and end with a 3-line status.

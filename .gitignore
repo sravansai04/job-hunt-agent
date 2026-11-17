@@ -11,7 +11,9 @@ automation/build/
 data/
 *.pdf
 *.png
-*.yml
+# Playwright page snapshots (can hold personal data); real YAML such as .github/workflows stays tracked
+automation/**/*.yml
+*_snap*.yml
 .DS_Store
 __pycache__/
 resume/original/

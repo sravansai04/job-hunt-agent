@@ -25,7 +25,8 @@ n = 0
 sp = ROOT / "config" / "search.json"
 search = json.loads((sp if sp.exists() else ROOT / "config" / "search.example.json").read_text())
 sblob = json.dumps(search, ensure_ascii=False)
+answers = (ROOT / "automation" / "lib" / "answers.js").read_text()
 for f in sorted((ROOT / "automation").glob("*.js")) + [ROOT / "scan" / "sweep.js"]:
-    (out / f.name).write_text(f.read_text().replace("__PROFILE__", blob, 1).replace("__SEARCH__", sblob, 1))
+    (out / f.name).write_text(f.read_text().replace("__PROFILE__", blob, 1).replace("__SEARCH__", sblob, 1).replace("__ANSWERS__", answers, 1))
     n += 1
 print(f"wrote {n} scripts to {out}")

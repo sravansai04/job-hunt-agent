@@ -2,7 +2,7 @@
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest", "--user-data-dir", "${HOME}/.job-hunt-browser"]
+      "args": ["-y", "@playwright/mcp@0.0.84", "--user-data-dir", "${HOME}/.job-hunt-browser"]
     }
   }
 }

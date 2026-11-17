@@ -14,7 +14,12 @@ Rules while onboarding:
    - Running the scanner, installer and resume compiler (`.claude/settings.json` pre-approves these for this folder).
    - Controlling a separate Chrome window (Playwright) for job sites and Gmail. It uses its own profile in `~/.job-hunt-browser`, not their normal Chrome.
    - Saving generated career-site passwords in the macOS Keychain under `jobhunt:<site>`.
-   - Submitting applications on their behalf when every guardrail passes (ask: auto-submit, or approve each one?).
+   - Submitting applications on their behalf when every guardrail passes (ask: auto-submit, or approve each one?). Save the answer as `auto_submit`.
+   - Legal steps the fillers would take in their name. Ask about EACH one separately, show a real example, and save the answer in `profile.consents` (false = the filler stops and asks every time):
+     - `terms_and_conditions`: ticking a site's terms, disclaimers or candidate code of conduct (Workday, Microsoft, Tesla).
+     - `arbitration`: agreeing to an arbitration agreement (Tesla, OpenAI). This waives the right to sue in court for some claims.
+     - `e_signature`: typing their legal name as an electronic signature (Tesla acknowledgment, Workday disability self-ID).
+   - Yes/No facts typed on every form (non-compete, worked here before, relatives at the company, background check, SMS, ...). Go through `profile.answers` one by one; leave a value null if the answer depends on the company.
    Ask them to approve the project MCP server and settings if Claude Code prompts.
 3. Run `./setup/install.sh`. Fix anything missing yourself (Homebrew, Node). Ask only if a system password prompt is needed, and let them type it.
 

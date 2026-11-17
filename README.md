@@ -33,15 +33,17 @@ Manual setup reference: [setup/SETUP.md](setup/SETUP.md).
 - **Only true answers.** The fillers type exactly what's in your profile into real applications.
 - **Quality beats volume.** One tailored, honest application does better than ten generic ones. Recruiters discount AI-sounding text, so keep the critique step on.
 - **Site terms.** Automated form filling may break some career sites' terms of service and can get accounts flagged. You are responsible for how you use this. Never automate LinkedIn.
-- **Review auto-submit.** `auto_submit: true` lets Claude submit without asking when every guardrail passes. Set it to false until you trust your config.
+- **Review auto-submit.** `auto_submit: true` lets Claude submit without asking when every guardrail passes. It is false in the example; turn it on once you trust your config.
+- **Legal steps are opt-in.** Terms and conditions, arbitration agreements and typing your name as an e-signature each need their own `consents` flag. Without it the filler stops and asks.
 
 ## Layout
 ```
 config/      example configs (copy to *.json / *.md, which are git-ignored), rules.md
 scan/        scan.py
-automation/  form fillers + Overleaf compiler (render with setup/render.py)
+automation/  form fillers + Overleaf compiler (render with setup/render.py); lib/answers.js holds every screening answer
 resume/      template.tex, summaries example; your base.tex/jobs/upload stay local
 tracker/     tracker.html
+tests/       answers.test.js: real screening-question wordings and the answer each must get (node tests/answers.test.js)
 prompts/     scheduled prompts + SCHEDULES.md
 setup/       ONBOARDING.md (what Claude runs), install.sh, render.py, check_private.py, compile_resume.sh, hooks
 .claude/     project permissions + slash commands; .mcp.json registers the Playwright browser

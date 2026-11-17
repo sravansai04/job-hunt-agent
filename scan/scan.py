@@ -31,8 +31,12 @@ _R = lambda s: re.compile(s, re.I)
 TITLE_KEEP, TITLE_DROP = _R(S["title_keep"]), _R(S["title_drop"])
 NON_US, US_HINT = _R(S["location"]["non_us"]), _R(S["location"]["us_hint"])
 VISA_FLAGS = _R(S["visa_flags"]) if S.get("needs_sponsorship", True) else None
+# Benign phrases that contain a red-flag word but mean the opposite ("with or without sponsorship",
+# "no security clearance required"). They are removed before VISA_FLAGS is applied.
+VISA_OK = _R(S.get("visa_ok", r"with or without (visa |employer |immigration )?sponsorship|regardless of (visa|sponsorship)|(no|not|without)( an?)?( active)?( security)? clearance (is )?(required|needed)|does not require (an? )?(active )?(security )?clearance|clearance is not required"))
+SKIP_COMPANIES = _R(S["skip_companies"]) if S.get("skip_companies") else None
 YEARS = re.compile(r"(\d{1,2})\s*\+?\s*(?:-|to|–)?\s*(?:\d{1,2}\s*)?\+?\s*years?", re.I)
-SKILL_RE = [(_R(k), w) for k, w in S["skills"].items()]
+SKILL_RE = [(_R(k), w) for k, w in S["skills"].items() if not k.startswith("_")]
 OFF_STACK = _R(S["off_stack"]) if S.get("off_stack") else None
 TITLE_BONUS = [(_R(k), w) for k, w in S.get("title_bonus", {}).items()]
 YEARS_PENALTY = sorted(((int(k), v) for k, v in S.get("years_penalty", {}).items()), reverse=True)
@@ -221,7 +225,7 @@ def main():
     a = ap.parse_args()
 
     cfg = _load_cfg("targets")
-    tasks = [("Amazon", lambda: amazon(cfg["amazon"]))]
+    tasks = [] if cfg["amazon"].get("disabled") else [("Amazon", lambda: amazon(cfg["amazon"]))]
     for k, (tier, name, sp) in cfg["greenhouse"].items(): tasks.append((name, lambda k=k, t=tier, n=name, s=sp: greenhouse(k, t, n, s)))
     for k, (tier, name, sp) in cfg["lever"].items(): tasks.append((name, lambda k=k, t=tier, n=name, s=sp: lever(k, t, n, s)))
     for k, (tier, name, sp) in cfg["ashby"].items(): tasks.append((name, lambda k=k, t=tier, n=name, s=sp: ashby(k, t, n, s)))
@@ -247,18 +251,22 @@ def main():
 
     seen_p = HERE / "seen.json"
     seen = set(json.loads(seen_p.read_text())) if seen_p.exists() else set()
-    kept, dropped_visa = [], []
+    kept, dropped_visa, dropped = [], [], []
     for j in jobs:
         if not a.all and j["id"] in seen: continue
-        if VISA_FLAGS and VISA_FLAGS.search(j["desc"]): dropped_visa.append(j); continue
+        if SKIP_COMPANIES and SKIP_COMPANIES.search(j["company"]): dropped.append((j, "company on hold (skip_companies)")); continue
+        m = VISA_FLAGS.search(VISA_OK.sub(" ", j["desc"])) if VISA_FLAGS else None
+        if m: dropped_visa.append(j); dropped.append((j, "visa: '" + m.group(0)[:80] + "'")); continue
         j["years"] = min_years(j["desc"])
         j["pay"] = j.get("pay") or pay_range(j["desc"])
         j["score"], j["hits"] = score(j)
         j["stretch"] = bool(j["years"] and j["years"] >= S.get("stretch_years", 6))
         if j["score"] >= a.min: kept.append(j)
+        else: dropped.append((j, f"score {j['score']} < {a.min}"))
 
     kept.sort(key=lambda j: (-j["score"], j["tier"]))
-    seen |= {j["id"] for j in jobs}
+    # Only reported jobs count as seen. Filtered-out jobs come back after search.json changes.
+    seen |= {j["id"] for j in kept}
     seen_p.write_text(json.dumps(sorted(seen)))
 
     for j in kept:
@@ -276,6 +284,9 @@ def main():
     lines += ["", "Browser-only (check manually each run): " + ", ".join(f"[{k}]({v['url']})" for k, v in cfg["browser_only"].items())]
     if errors: lines += ["", "Source errors: " + "; ".join(errors)]
     (HERE / "today.md").write_text("\n".join(lines))
+    # Every filtered-out job with its reason, so a too-strict filter is easy to spot.
+    (HERE / "dropped.md").write_text("\n".join([f"# Dropped {NOW.astimezone():%Y-%m-%d %H:%M}", ""] +
+        [f"- {j['company']} | {j['title']} | {why} | {j['url']}" for j, why in dropped]))
     print("\n".join(lines[:2]))
     if errors: print("errors:", errors)
 

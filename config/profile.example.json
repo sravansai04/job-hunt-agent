@@ -30,43 +30,38 @@
  "resume_pdf": "/ABSOLUTE/PATH/job-hunt-agent/resume/upload/Your_Name_Resume.pdf",
  "resume_filename_regex": "Your_Name_Resume\\.pdf",
  "work_auth": {
+  "_doc": "Set these to YOUR situation. needs_sponsorship=true makes every sponsorship question Yes and every 'authorized to work WITHOUT sponsorship' question No.",
   "authorized_us": true,
-  "needs_sponsorship": true,
-  "visa_type": "H-1B",
-  "sponsorship_details": "Describe your situation in one or two plain sentences, e.g. current visa and what the employer would need to file.",
-  "visa_status_text": "H-1B (needs transfer)"
+  "needs_sponsorship": false,
+  "visa_type": "",
+  "sponsorship_details": "",
+  "visa_status_text": ""
  },
- "years_experience": 4,
- "years_answer_regex": "^4\\+|^4 ?- ?\\d|^3 ?- ?5|^4 years",
- "salary_text": "$150,000 base (negotiable)",
- "salary_short": "$150,000",
+ "years_experience": 3,
+ "years_answer_regex": "^3\\+|^3 ?- ?\\d|^2 ?- ?4|^3 years",
+ "salary_text": "$120,000 base (negotiable)",
+ "salary_short": "$120,000",
  "notice_text": "2 weeks",
  "notice_long": "2 weeks notice",
- "location_preference": "Austin, TX area; open to relocating anywhere in the US",
+ "location_preference": "Austin, TX area",
  "open_to_relocate": true,
  "open_to_onsite": true,
  "how_heard": "Company careers site",
  "eeo": {
-  "_doc": "Voluntary self-ID. Each value is a regex matched against the form's option text. Use a 'decline' regex if you prefer not to answer.",
-  "gender": "^(\\d\\. )?(Male|Man)$|decline|prefer not",
-  "hispanic": "^No$",
-  "race": "^Asian( \\(|$)|South Asian",
-  "veteran": "not a (protected )?veteran",
-  "disability": "^No,|^No(,? I (do not|don.?t) have.*)?$",
+  "_doc": "Voluntary self-ID. Each value is a regex matched against the form's option text. These defaults decline to answer; replace any of them with your own answer if you want to share it.",
+  "gender": "decline|prefer not|don.?t wish",
+  "hispanic": "decline|prefer not|don.?t wish",
+  "race": "decline|prefer not|don.?t wish",
+  "veteran": "decline|prefer not|don.?t wish",
+  "disability": "don.?t (want|wish) to answer|decline|prefer not",
   "transgender": "don.?t wish|decline|prefer not",
   "orientation": "don.?t wish|decline|prefer not"
  },
  "education": [
   {
    "school": "Example University",
-   "degree": "Master's Degree",
-   "degree_regex": "^(Master|MS\\b|M\\.S\\.?$)",
-   "major": "Computer Science"
-  },
-  {
-   "school": "Example College",
    "degree": "Bachelor's Degree",
-   "degree_regex": "^(Bachelor|B\\.Tech|B\\.Eng|BS\\b|B\\.S\\.?$)",
+   "degree_regex": "^(Bachelor|BS\\b|B\\.S\\.?$)",
    "major": "Computer Science"
   }
  ],
@@ -94,26 +89,23 @@
  ],
  "evidence_of_excellence": "One paragraph on your strongest, verifiable achievement (Tesla asks for this).",
  "amazon_years": {
-  "_doc": "Amazon screening dropdowns: option text to pick for each question type.",
+  "_doc": "Amazon screening dropdowns: option text to pick for each question type. Use the band that matches your real experience.",
   "professional_sde": [
-   "4 years to less than 5 years",
-   "more than 3 years"
+   "3 years to less than 4 years"
   ],
   "design_architecture": [
-   "2 years to less than 3 years"
+   "1 year to less than 2 years"
   ],
   "language_years": [
    "2 years to less than 3 years"
   ],
   "ood_or_sde_occupation": [
-   "more than 3 years",
    "3 years to less than 4 years"
   ]
  },
  "workday_experience_bands": {
-  "_doc": "Workday 'how much experience with X' questions: label regex -> option regex.",
-  "Network Technology|Network Operations|Wireless": "^Less than 1 Year$",
-  "Software Engineering|Big Data|Cloud Technology|Security|Product (Management|Development)|Project Management": "^3 - 5 Years$"
+  "_doc": "Workday 'how much experience with X' questions: label regex -> option regex. Only list areas where you know your real band.",
+  "Software Engineering": "^1 - 3 Years$"
  },
  "start_date_offset_days": 14,
  "repo_dir": "/ABSOLUTE/PATH/job-hunt-agent",
@@ -128,6 +120,46 @@
   "collection": "apps"
  },
  "owner_label": "the candidate",
- "auto_submit": true,
- "job_search_email_note": "email above is the address used for career-site accounts"
+ "auto_submit": false,
+ "job_search_email_note": "email above is the address used for career-site accounts",
+ "notice_options": {
+  "_doc": "Site-specific dropdown text for your notice period.",
+  "tesla": "In 1-2 weeks"
+ },
+ "answers": {
+  "_doc": "Yes/No facts the form fillers type for you (automation/lib/answers.js). Leave a value null to be asked every time. Only true answers.",
+  "restrictive_agreement": "No",
+  "previously_employed_here": "No",
+  "current_employee_here": "No",
+  "contractor_here": "No",
+  "government_official": "No",
+  "debarred": "No",
+  "relatives_employed": "No",
+  "outside_business": "No",
+  "sanctioned_country_citizen": "No",
+  "over_18": "Yes",
+  "military_service": "No",
+  "background_check_ok": "Yes",
+  "can_complete_i9": "Yes",
+  "sms_opt_in": null,
+  "future_contact_opt_in": "Yes",
+  "privacy_ack": "Yes",
+  "employer_ai_review_consent": null,
+  "enterprise_software": null,
+  "acknowledge_ok": "information .{0,60}(is|are) (true|accurate|complete)",
+  "amazon_basic_quals": null,
+  "wotc": null
+ },
+ "consents": {
+  "_doc": "Legal steps the fillers take in your name. Onboarding asks about each one separately. false = the filler stops and asks you.",
+  "terms_and_conditions": false,
+  "arbitration": false,
+  "e_signature": false
+ },
+ "daily_cap": 8,
+ "ashby_location_checkboxes": [
+  "Remote - US"
+ ],
+ "walmart_source": "Job Board",
+ "walmart_source_detail": ""
 }
