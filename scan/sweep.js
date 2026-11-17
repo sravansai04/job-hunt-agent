@@ -5,12 +5,16 @@ async (page) => {
   const S = __SEARCH__;
   const keep = new RegExp(S.title_keep, 'i'),
     drop = new RegExp(S.title_drop, 'i');
-  const Q = 'software engineer',
-    DAYS = 7,
+  // Search terms come from the candidate's search.json (onboarding writes them). Sites with a keyword
+  // search are queried once per term; listings are deduped by company + id.
+  const TERMS = (S.search_terms || []).filter((t) => t && t.trim());
+  if (!TERMS.length) return { error: 'config/search.json has no search_terms. Run onboarding first.' };
+  const DAYS = 7,
     since = Date.now() - DAYS * 864e5;
   const ctx = page.context(),
     r = page.request,
-    out = { listings: [], errors: [] };
+    out = { listings: [], errors: [] },
+    seenIds = new Set();
   const nonUs = new RegExp(S.location.non_us, 'i'),
     usHint = new RegExp(S.location.us_hint, 'i');
   const locOk = (loc) =>
@@ -18,6 +22,8 @@ async (page) => {
   const add = (company, id, title, location, posted, url) => {
     title = (title || '').trim();
     if (!title || !keep.test(title) || drop.test(title) || !locOk(location || '')) return;
+    if (seenIds.has(company + ':' + id)) return;
+    seenIds.add(company + ':' + id);
     if (posted && !isNaN(new Date(posted)) && new Date(posted).getTime() < since) return;
     out.listings.push({
       company,
@@ -45,26 +51,27 @@ async (page) => {
     return tp;
   };
 
-  await safe('Microsoft', async () => {
-    const d = await (
-      await r.get(
-        `https://apply.careers.microsoft.com/api/pcsx/search?domain=microsoft.com&query=${encodeURIComponent(Q)}&location=United%20States&start=0&sort_by=timestamp`,
-        { timeout: 30000 },
-      )
-    ).json();
-    const list = d?.data?.positions || d?.positions || [];
-    for (const j of list)
-      add(
-        'Microsoft',
-        j.id || j.displayJobId,
-        j.name || j.title,
-        (j.locations || []).join('; ') || j.location,
-        j.postedTs ? new Date(j.postedTs * 1000).toISOString() : j.postedDate,
-        j.positionUrl
-          ? 'https://apply.careers.microsoft.com' + j.positionUrl
-          : `https://apply.careers.microsoft.com/careers/job/${j.id}`,
-      );
-  });
+  for (const Q of TERMS)
+    await safe('Microsoft: ' + Q, async () => {
+      const d = await (
+        await r.get(
+          `https://apply.careers.microsoft.com/api/pcsx/search?domain=microsoft.com&query=${encodeURIComponent(Q)}&location=United%20States&start=0&sort_by=timestamp`,
+          { timeout: 30000 },
+        )
+      ).json();
+      const list = d?.data?.positions || d?.positions || [];
+      for (const j of list)
+        add(
+          'Microsoft',
+          j.id || j.displayJobId,
+          j.name || j.title,
+          (j.locations || []).join('; ') || j.location,
+          j.postedTs ? new Date(j.postedTs * 1000).toISOString() : j.postedDate,
+          j.positionUrl
+            ? 'https://apply.careers.microsoft.com' + j.positionUrl
+            : `https://apply.careers.microsoft.com/careers/job/${j.id}`,
+        );
+    });
   await safe('Atlassian', async () => {
     const d = await (await r.get('https://www.atlassian.com/endpoint/careers/listings', { timeout: 30000 })).json();
     for (const j of Array.isArray(d) ? d : d.listings || []) {
@@ -73,59 +80,65 @@ async (page) => {
         add('Atlassian', j.id, j.title, loc, j.updatedDate || '', `https://www.atlassian.com/company/careers/details/${j.id}`);
     }
   });
-  await safe('ServiceNow', async () => {
-    const d = await (
-      await r.get(
-        `https://api.smartrecruiters.com/v1/companies/ServiceNow/postings?q=${encodeURIComponent(Q)}&country=us&limit=100`,
-        { timeout: 30000 },
-      )
-    ).json();
-    for (const j of d.content || [])
-      add(
-        'ServiceNow',
-        j.id,
-        j.name,
-        [j.location?.city, j.location?.region].filter(Boolean).join(', '),
-        j.releasedDate,
-        `https://jobs.smartrecruiters.com/ServiceNow/${j.id}`,
-      );
-  });
-  await safe('JPMorgan', async () => {
-    const d = await (
-      await r.get(
-        `https://jpmc.fa.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList&finder=findReqs;siteNumber=CX_1001,keyword=${encodeURIComponent(Q)},sortBy=POSTING_DATES_DESC,limit=100`,
-        { timeout: 30000 },
-      )
-    ).json();
-    for (const j of d.items?.[0]?.requisitionList || [])
-      add(
-        'JPMorgan',
-        j.Id,
-        j.Title,
-        j.PrimaryLocation,
-        j.PostedDate,
-        `https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/${j.Id}`,
-      );
-  });
-  await safe('Apple', async () => {
-    const h = await (
-      await r.get(`https://jobs.apple.com/en-us/search?search=${encodeURIComponent(Q)}&location=united-states-USA&sort=newest`, {
-        timeout: 40000,
-      })
-    ).text();
-    const m = h.match(/window\.__staticRouterHydrationData = JSON\.parse\("(.*?)"\);/s);
-    if (!m) throw new Error('hydration data not found (page layout changed)');
-    const d = JSON.parse(JSON.parse('"' + m[1] + '"'));
-    for (const j of d.loaderData?.search?.searchResults || [])
-      add(
-        'Apple',
-        j.positionId,
-        j.postingTitle,
-        (j.locations || []).map((l) => l.name).join('; '),
-        j.postDateInGMT,
-        `https://jobs.apple.com/en-us/details/${j.positionId}`,
-      );
-  });
+  for (const Q of TERMS)
+    await safe('ServiceNow: ' + Q, async () => {
+      const d = await (
+        await r.get(
+          `https://api.smartrecruiters.com/v1/companies/ServiceNow/postings?q=${encodeURIComponent(Q)}&country=us&limit=100`,
+          { timeout: 30000 },
+        )
+      ).json();
+      for (const j of d.content || [])
+        add(
+          'ServiceNow',
+          j.id,
+          j.name,
+          [j.location?.city, j.location?.region].filter(Boolean).join(', '),
+          j.releasedDate,
+          `https://jobs.smartrecruiters.com/ServiceNow/${j.id}`,
+        );
+    });
+  for (const Q of TERMS)
+    await safe('JPMorgan: ' + Q, async () => {
+      const d = await (
+        await r.get(
+          `https://jpmc.fa.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList&finder=findReqs;siteNumber=CX_1001,keyword=${encodeURIComponent(Q)},sortBy=POSTING_DATES_DESC,limit=100`,
+          { timeout: 30000 },
+        )
+      ).json();
+      for (const j of d.items?.[0]?.requisitionList || [])
+        add(
+          'JPMorgan',
+          j.Id,
+          j.Title,
+          j.PrimaryLocation,
+          j.PostedDate,
+          `https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/${j.Id}`,
+        );
+    });
+  for (const Q of TERMS)
+    await safe('Apple: ' + Q, async () => {
+      const h = await (
+        await r.get(
+          `https://jobs.apple.com/en-us/search?search=${encodeURIComponent(Q)}&location=united-states-USA&sort=newest`,
+          {
+            timeout: 40000,
+          },
+        )
+      ).text();
+      const m = h.match(/window\.__staticRouterHydrationData = JSON\.parse\("(.*?)"\);/s);
+      if (!m) throw new Error('hydration data not found (page layout changed)');
+      const d = JSON.parse(JSON.parse('"' + m[1] + '"'));
+      for (const j of d.loaderData?.search?.searchResults || [])
+        add(
+          'Apple',
+          j.positionId,
+          j.postingTitle,
+          (j.locations || []).map((l) => l.name).join('; '),
+          j.postDateInGMT,
+          `https://jobs.apple.com/en-us/details/${j.positionId}`,
+        );
+    });
   await safe('Tesla', async () => {
     const p = await bg('https://www.tesla.com/careers/search/?site=US', 5000);
     const d = await p.evaluate(async () => (await fetch('/cua-api/apps/careers/state')).json());

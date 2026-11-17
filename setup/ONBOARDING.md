@@ -36,13 +36,19 @@ Ask in batches, skipping anything the resume already answers:
 4. Phrasing check: for anything ambiguous (for example "deployed to Kubernetes" when a platform team runs deploys), ask how they'd describe it and save the honest wording.
 
 ## Phase 3: what they want
-1. Target titles and levels, years of experience, roles to avoid.
+1. Job titles, levels and search terms come only from the candidate. Never assume software engineering.
+   - Ask (AskUserQuestion) their target job titles: a multi-select of common families (software engineer, data analyst, data engineer, data scientist, product manager, designer, QA/test, DevOps/SRE, IT support, business analyst, ...) plus Other for their own words. Then their levels: intern, new grad, junior, mid, senior, staff+. Then title words to exclude, and roles to avoid.
+   - Build `title_keep`, `title_drop`, `title_bonus`, `search_terms`, the Amazon `queries` in `targets.json` and `amazon_require_level` from those answers only. Derive `years_penalty` and `stretch_years` from their years of experience. `config/search.example.json` is an example preset for a mid-level software engineer, not a default.
+   - Before saving, explain the result in plain language ("I'll search for X and Y, keep titles with ..., drop titles with ..."), then save it as a draft `config/search.json` and do a quick check on real postings: pull titles from a few feeds in `targets.json` (one short Python snippet against the Greenhouse/Workday endpoints `scan/scan.py` uses), apply `title_keep`/`title_drop`, and show 10 real titles that would be KEPT and 10 that would be DROPPED. Ask them to confirm or adjust, and repeat until they confirm.
 2. Locations: cities, remote, relocation, on-site/hybrid OK.
-3. Work authorization: authorized in which country, needs sponsorship now or later, visa type, a one-sentence explanation for forms.
+3. Work authorization: authorized in which country, a one-sentence explanation for forms, visa type. Ask the two sponsorship questions separately:
+   - `work_auth.sponsorship_now`: "Do you need an employer to sponsor you to start this job?"
+   - `work_auth.sponsorship_future`: "Will you need sponsorship later?" (OPT or STEM OPT ending, H-4 EAD, a green card).
+   Someone on OPT is usually No now and Yes later.
 4. Salary expectation and notice period / earliest start.
 5. Dream companies, companies to avoid (current employer, competitors), any per-company holds.
-6. Auto-submit or approve each application? How many applications per day is comfortable?
-Write `config/profile.json`, `config/search.json` (skills -> weights from Phase 2, title/location/years filters, sponsorship flag) and trim `config/targets.json` to relevant companies (add their dream companies if they have a public ATS feed).
+6. Auto-submit or approve each application? Then the daily limit (AskUserQuestion with options 5 / 8 (Recommended) / 15 / No daily limit), saved as `daily_cap` (a number, or null for no daily limit). Explain in one line: per-company limits still apply, and Claude usage limits and account flags are the real ceiling. Then ask `per_run`, roles per keep-applying run, the same way (options 3 / 5 (Recommended) / 10 / As many as qualify = null).
+Write `config/profile.json`, `config/search.json` (from step 1, plus skills -> weights from Phase 2 and location filters) and trim `config/targets.json` to relevant companies (add their dream companies if they have a public ATS feed).
 
 ## Phase 4: form answers
 1. Contact details (from the resume; confirm), legal name, preferred name, address for forms, LinkedIn/GitHub/website.

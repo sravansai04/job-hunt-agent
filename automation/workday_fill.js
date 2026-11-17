@@ -58,20 +58,7 @@ async (page) => {
       .map(([k, v]) => [new RegExp('experience you have working with (' + k + ')', 'i'), new RegExp(v)]),
     [/how many years of (relevant |professional )?(work )?experience/i, new RegExp(P.years_answer_regex)],
   ];
-  const textRules = [
-    [
-      /details on your (required )?sponsorship|explain.*sponsorship|sponsorship (details|required)/i,
-      P.work_auth.sponsorship_details,
-    ],
-    [/salary|compensation|pay expectation/i, P.salary_text],
-    [/notice period|start date|available to start|availability/i, P.notice_long],
-    [/visa status|current (immigration|work authorization) status/i, P.work_auth.visa_status_text],
-    [/city/i, P.address.city],
-    [/state|province/i, P.address.state],
-    [/location preference|preferred (office|location|geographic location)/i, P.location_preference],
-    [/linkedin/i, P.links.linkedin],
-    [/hear about/i, P.how_heard],
-  ];
+  // Free-text answers come from textAnswerFor() in automation/lib/answers.js (anchored rules, essay prompts stop).
   const doQuestions = async () => {
     const qs = await page.evaluate(() =>
       [...document.querySelectorAll('[id^=primaryQuestionnaire], [id^=secondaryQuestionnaire]')]
@@ -111,10 +98,11 @@ async (page) => {
         continue;
       }
       if (tag === 'TEXTAREA' || tag === 'INPUT') {
-        const tr = textRules.find((r) => r[0].test(label));
+        const tr = textAnswerFor(label, P);
         if (!tr) return { stop: 'unknown text question', label, log };
+        if (tr.stop) return { stop: tr.stop, label, log };
         const t = page.locator(`[id="${id}"]`);
-        if (!(await t.inputValue())) await t.fill(tr[1]);
+        if (!(await t.inputValue())) await t.fill(tr.text);
         log.push('T ' + label.slice(0, 40));
         continue;
       }
@@ -271,16 +259,6 @@ async (page) => {
     if (/My Experience/.test(h)) {
       // Match each parsed job/degree to the profile by its own company/title/school text. Workday's resume parse
       // does not always keep the profile's order, so filling by position can put a description on the wrong job.
-      const norm = (x) =>
-        String(x || '')
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, ' ')
-          .trim();
-      const near = (a, b) => {
-        a = norm(a);
-        b = norm(b);
-        return !!a && !!b && (a.includes(b) || b.includes(a));
-      };
       const jobs = await page.evaluate(() =>
         [...document.querySelectorAll('textarea[id^=workExperience]')].map((e) => {
           const pre = e.id.split('--')[0];
@@ -292,11 +270,7 @@ async (page) => {
         }),
       );
       for (const [id, co, title] of jobs) {
-        const w =
-          P.work_history.find((w) => near(w.employer, co) && near(w.title, title)) ||
-          (P.work_history.filter((w) => near(w.employer, co)).length === 1
-            ? P.work_history.find((w) => near(w.employer, co))
-            : null);
+        const w = matchWorkHistory(P.work_history, co, title);
         if (!w)
           return { stop: 'work history entry not in profile; fill the description yourself', label: co + ' / ' + title, log };
         const t = page.locator(`[id="${id}"]`);
@@ -314,7 +288,7 @@ async (page) => {
       );
       for (let i = 0; i < degs.length; i++) {
         if (!/^Select One/i.test(degs[i][1])) continue;
-        const ed = P.education.find((e) => near(e.school, degs[i][2]));
+        const ed = matchEducation(P.education, degs[i][2]);
         if (!ed) return { stop: 'education entry not matched to profile school', label: degs[i][2], log };
         const want = new RegExp(ed.degree_regex, 'i');
         await page.locator(`[id="${degs[i][0]}"]`).scrollIntoViewIfNeeded();

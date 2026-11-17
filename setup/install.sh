@@ -18,8 +18,7 @@ if [ "$1" = "--latex" ] && ! command -v pdflatex >/dev/null 2>&1; then need_brew
 command -v pdflatex >/dev/null 2>&1 && say "pdflatex found" || say "pdflatex not installed (fine if you use Overleaf; run with --latex to install)"
 
 mkdir -p data resume/jobs resume/upload
-for pair in "config/search.example.json config/search.json" "config/targets.example.json config/targets.json"; do
-  set -- $pair; [ -f "$2" ] || cp "$1" "$2"
-done
+# config/search.json is NOT copied from the example: onboarding writes it from the candidate's own titles and levels.
+[ -f config/targets.json ] || cp config/targets.example.json config/targets.json
 git config core.hooksPath setup/hooks 2>/dev/null || true
 say "install done"

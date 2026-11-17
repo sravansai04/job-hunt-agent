@@ -172,7 +172,10 @@ async (page) => {
     addr: r.includes(P.address.line1) && r.includes(P.address.zip),
     resume: new RegExp(P.resume_filename_regex, 'i').test(r),
     job: r.includes(P.work_history[0].title),
-    spons: new RegExp('sponsorship[^\\n]*\\n\\n' + (P.work_auth.needs_sponsorship ? 'Yes' : 'No')).test(r),
+    spons: new RegExp(
+      'sponsorship[^\\n]*\\n\\n' +
+        (['Yes', 'No'].find((o) => ((answerFor('Will you require sponsorship?', P) || {}).pick || /^$/).test(o)) || '__ASK__'),
+    ).test(r),
     auth: /legally authorized[^\n]*\n\n(Yes|No)/.test(r),
     vet: /veteran/i.test(r),
   };

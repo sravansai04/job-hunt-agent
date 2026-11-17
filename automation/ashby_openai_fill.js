@@ -1,5 +1,6 @@
 async (page) => {
   const P = __PROFILE__; // filled in by setup/render.py from config/profile.json
+  __ANSWERS__; // shared screening answers (automation/lib/answers.js)
 
   // OpenAI (Ashby) application filler. Other Ashby forms differ: use this as a starting point.
   // Leaves "I confirm I have read the above" (personal-completion certification) for YOU to tick.
@@ -35,12 +36,15 @@ async (page) => {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(600);
   await page.keyboard.press('Escape');
-  for (const [q, yes] of [
-    [/authorized to work in the country/, P.work_auth.authorized_us],
-    [/require sponsorship for employment visa/, P.work_auth.needs_sponsorship],
-    [/work from our US office three days/, P.open_to_onsite],
+  // OpenAI's three Yes/No questions, answered through answerFor() with their wording.
+  for (const [q, wording] of [
+    [/authorized to work in the country/, 'Are you authorized to work in the country where this job is located?'],
+    [/require sponsorship for employment visa/, 'Will you now or in the future require sponsorship for employment visa status?'],
+    [/work from our US office three days/, 'Are you able to work from our US office three days a week (hybrid)?'],
   ]) {
-    const ans = yes ? 'Yes' : 'No';
+    const a = answerFor(wording, P);
+    if (!a || a.stop) return { stop: (a ? a.stop : 'no rule') + ' :: ' + wording };
+    const ans = ['Yes', 'No'].find((o) => a.pick.test(o));
     const blk = page
       .locator('div')
       .filter({ hasText: q })

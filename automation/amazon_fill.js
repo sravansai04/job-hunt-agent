@@ -1,5 +1,6 @@
 async (page) => {
   const P = __PROFILE__; // filled in by setup/render.py from config/profile.json
+  __ANSWERS__; // shared screening answers (automation/lib/answers.js)
 
   // Fills an amazon.jobs application in the existing Amazon tab (no new tabs) up to Review & submit.
   // Set globalThis.__AMZ_JOB = '<job id>' first (or edit the line below). Year answers come from P.amazon_years.
@@ -67,7 +68,10 @@ async (page) => {
       return g;
     });
     const set = {
-      REQUIRE_SPONSORSHIP: P.work_auth.needs_sponsorship ? /^Yes/ : /^No/,
+      // Amazon asks "now or in the future"; answerFor() reads sponsorship_now/future (a stop leaves it unanswered)
+      REQUIRE_SPONSORSHIP:
+        (answerFor('Will you now or in the future require sponsorship for employment visa status?', P) || {}).pick ||
+        /^__ASK_CANDIDATE__$/,
       GEF_EXT_USA_GOVERNMENT_EMPLOYEE:
         (P.answers || {}).government_official === 'No' ? /^No, I was NEVER/ : /^__ASK_CANDIDATE__$/,
     };

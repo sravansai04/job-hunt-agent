@@ -26,11 +26,31 @@ def _load_cfg(name):
     for p in (ROOT / "config" / f"{name}.json", ROOT / "config" / f"{name}.example.json"):
         if p.exists(): return json.loads(p.read_text())
     raise SystemExit(f"missing config/{name}.json")
-S = _load_cfg("search")
+# search.json holds the candidate's own titles, levels and search terms. There is no default:
+# the example file is a preset for one kind of candidate, so never fall back to it.
+if not (ROOT / "config" / "search.json").exists():
+    raise SystemExit("config/search.json not found. Run onboarding first (open Claude Code in this folder and say hi).")
+S = json.loads((ROOT / "config" / "search.json").read_text())
+SEARCH_TERMS = [t for t in S.get("search_terms") or [] if t.strip()]
+if not SEARCH_TERMS:
+    raise SystemExit("config/search.json has no search_terms. Run onboarding first.")
+
+
+def _needs_sponsorship():
+    """Visa filter is on if the candidate needs sponsorship now OR later (OPT/STEM OPT/H-4 EAD need it later).
+    Reads config/profile.json work_auth; older profiles have needs_sponsorship only, read as both."""
+    pp = ROOT / "config" / "profile.json"
+    if pp.exists():
+        wa = json.loads(pp.read_text()).get("work_auth") or {}
+        now = wa.get("sponsorship_now", wa.get("needs_sponsorship"))
+        fut = wa.get("sponsorship_future", wa.get("needs_sponsorship"))
+        if now is not None or fut is not None:
+            return bool(now or fut)
+    return S.get("needs_sponsorship", True)
 _R = lambda s: re.compile(s, re.I)
 TITLE_KEEP, TITLE_DROP = _R(S["title_keep"]), _R(S["title_drop"])
 NON_US, US_HINT = _R(S["location"]["non_us"]), _R(S["location"]["us_hint"])
-VISA_FLAGS = _R(S["visa_flags"]) if S.get("needs_sponsorship", True) else None
+VISA_FLAGS = _R(S["visa_flags"]) if _needs_sponsorship() else None
 # Benign phrases that contain a red-flag word but mean the opposite ("with or without sponsorship",
 # "no security clearance required"). They are removed before VISA_FLAGS is applied.
 VISA_OK = _R(S.get("visa_ok", r"with or without (visa |employer |immigration )?sponsorship|regardless of (visa|sponsorship)|(no|not|without)( an?)?( active)?( security)? clearance (is )?(required|needed)|does not require (an? )?(active )?(security )?clearance|clearance is not required"))
@@ -126,7 +146,7 @@ def jazzhr(sub, tier, name, sponsor):
 
 def amazon(cfg):
     out, seen = [], set()
-    for q in cfg["queries"]:
+    for q in cfg.get("queries") or SEARCH_TERMS:  # defaults to the candidate's search_terms
         for off in range(0, 300, 100):
             u = f"https://www.amazon.jobs/en/search.json?base_query={q.replace(' ', '%20')}&country=USA&result_limit=100&offset={off}&sort=recent"
             d = get(u)
@@ -152,15 +172,19 @@ def wd_posted(txt):
 
 def workday(name, tier, host, tenant, site, sponsor, max_pages=15):
     base = f"https://{host}/wday/cxs/{tenant}/{site}"
-    out = []
-    for p in range(max_pages):
-        d = get(base + "/jobs", {"appliedFacets": {}, "limit": 20, "offset": p * 20, "searchText": "software engineer"})
-        posts = d.get("jobPostings", [])
-        for j in posts:
-            out.append(dict(company=name, tier=tier, sponsor=sponsor, title=j.get("title", ""), location=j.get("locationsText", ""),
-                            url=f"https://{host}/en-US/{site}{j.get('externalPath','')}", posted=wd_posted(j.get("postedOn")),
-                            desc="", _wd=(base, j.get("externalPath", "")), id=f"wd:{tenant}:{j.get('externalPath','')}"))
-        if len(posts) < 20: break
+    out, seen_ids = [], set()
+    for term in SEARCH_TERMS:  # one search per term, deduped by job id
+        for p in range(max_pages):
+            d = get(base + "/jobs", {"appliedFacets": {}, "limit": 20, "offset": p * 20, "searchText": term})
+            posts = d.get("jobPostings", [])
+            for j in posts:
+                jid = f"wd:{tenant}:{j.get('externalPath','')}"
+                if jid in seen_ids: continue
+                seen_ids.add(jid)
+                out.append(dict(company=name, tier=tier, sponsor=sponsor, title=j.get("title", ""), location=j.get("locationsText", ""),
+                                url=f"https://{host}/en-US/{site}{j.get('externalPath','')}", posted=wd_posted(j.get("postedOn")),
+                                desc="", _wd=(base, j.get("externalPath", "")), id=f"wd:{tenant}:{j.get('externalPath','')}"))
+            if len(posts) < 20: break
     return out
 
 

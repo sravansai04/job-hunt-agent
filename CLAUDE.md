@@ -23,6 +23,7 @@ Read these before doing anything, every session:
 3. Copy `resume/base.tex` to `resume/jobs/<date>_<company>_<id>_<role>.tex`. Pick the closest summary, reorder project blocks for the role (reorder before renaming headers), swap at most 2 bullets, reorder skills. Exactly one `\end{document}`.
 4. Compile, then spawn a critique subagent (hiring manager + AI-tone + fact check). Fix, recompile, check page count.
 5. Copy the PDF to `profile.resume_pdf`, fill the form, verify every field, submit (if `auto_submit`), update the tracker, log one line in `data/NIGHT_STATE.md`.
+6. No filler for the site (Lever, JazzHR, SmartRecruiters, Oracle, iCIMS, Meta, Google, Uber, ...)? Don't fill it freehand. Tailor the resume, draft every answer through `answerFor` / `textAnswerFor`, set the tracker row to "Ready: apply manually" (resume path + drafted answers), and tell the candidate.
 
 ## Slash commands
 - `/onboard`: first-time setup. `/apply`: one application pass now. `/status`: short status.

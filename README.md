@@ -31,10 +31,38 @@ Manual setup reference: [setup/SETUP.md](setup/SETUP.md).
 
 ## Use it responsibly
 - **Only true answers.** The fillers type exactly what's in your profile into real applications.
-- **Quality beats volume.** One tailored, honest application does better than ten generic ones. Recruiters discount AI-sounding text, so keep the critique step on.
+- **Quality beats volume.** One tailored, honest application does better than ten generic ones. Recruiters discount AI-sounding text, so keep the critique step on. You choose the pace: `daily_cap` (for example 8, or null for no daily limit) and `per_run` (roles per run, or null for as many as qualify). Even with no daily limit, per-company limits, holds, the skills check, the critique step and the honesty rules still apply.
 - **Site terms.** Automated form filling may break some career sites' terms of service and can get accounts flagged. You are responsible for how you use this. Never automate LinkedIn.
 - **Review auto-submit.** `auto_submit: true` lets Claude submit without asking when every guardrail passes. It is false in the example; turn it on once you trust your config.
 - **Legal steps are opt-in.** Terms and conditions, arbitration agreements and typing your name as an e-signature each need their own `consents` flag. Without it the filler stops and asks.
+
+## Scope
+- **macOS.** Site passwords live in the macOS Keychain and resumes are read with `textutil`. Scanning works on Linux; the rest needs those steps swapped for your own tools.
+- **Gmail.** Career-site accounts use a job-search Gmail, and verification codes are read from it in the automated browser.
+- **US jobs.** Location filters, work-authorization answers and EEO questions assume US applications.
+
+## Supported sites
+| Site | Find jobs | Fill the application |
+|---|---|---|
+| Workday | scanner (public JSON) | filler (`workday_fill.js`) |
+| Greenhouse | scanner | filler (`greenhouse_fill.js`) |
+| Ashby | scanner | filler (`ashby_fill.js`; OpenAI has `ashby_openai_fill.js`) |
+| Amazon | scanner | filler (`amazon_fill.js`) |
+| Apple | sweep | filler (`apple_fill.js`, after you sign in with your Apple ID) |
+| Microsoft (Eightfold) | sweep | filler (`microsoft_fill.js`) |
+| Tesla | sweep | filler (`tesla_fill.js`) |
+| Walmart | by hand | filler (`walmart_fill.js`) |
+| Lever, JazzHR | scanner | no filler: resume and drafted answers are prepared, you apply ("Ready: apply manually") |
+| SmartRecruiters (ServiceNow), Oracle (JPMorgan, Goldman, Uber), iCIMS (Atlassian) | sweep or by hand | no filler: you apply with the prepared resume and answers |
+| Meta, Google | by hand | no filler: you apply with the prepared resume and answers |
+| LinkedIn | never | never (automating it breaks LinkedIn's terms) |
+
+## Stop and uninstall
+1. Delete the schedules: ask Claude "delete the job-hunt schedules" (or close the Claude Code session that runs them).
+2. Remove the saved site passwords: list them with `security dump-keychain | grep '"jobhunt:'` and delete each with `security delete-generic-password -s jobhunt:<site>`.
+3. Delete the automated browser profile (its logins and cookies): `rm -rf ~/.job-hunt-browser`.
+4. Delete the tracker artifact: ask Claude "delete my job-hunt tracker artifact", or delete it from your artifacts gallery on claude.ai.
+5. Optionally delete this folder (your profile, resume and logs are only here).
 
 ## Layout
 ```

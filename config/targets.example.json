@@ -3,13 +3,8 @@
  "amazon": {
   "tier": 1,
   "sponsor": "likely",
-  "queries": [
-   "software development engineer",
-   "full stack engineer",
-   "frontend engineer"
-  ],
   "disabled": false,
-  "_doc": "Set disabled to true to skip Amazon's feed (for example while interviewing there)."
+  "_doc": "queries: optional list of Amazon search queries; when not set, the scanner uses search_terms from config/search.json. Set disabled to true to skip Amazon's feed (for example while interviewing there)."
  },
  "browser_only": {
   "Meta": {
