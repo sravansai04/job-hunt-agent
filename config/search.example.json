@@ -28,6 +28,11 @@
  },
  "skills_cap": 45,
  "off_stack": "\\b(c\\+\\+|rust|golang|scala|kotlin|swift|objective-c|verilog|cuda)\\b",
+ "tier_bonus": {
+  "1": 8,
+  "2": 5,
+  "3": 2
+ },
  "title_bonus": {
   "full[\\s-]?stack|front[\\s-]?end|product": 6,
   "senior|sr\\.?|\\bii\\b|\\b2\\b|smts|mts": 3

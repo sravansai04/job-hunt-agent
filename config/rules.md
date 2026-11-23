@@ -13,7 +13,7 @@ Add personal rules (companies to avoid, holds, dream companies) in config/rules.
 5. Plain ASCII, the candidate's own voice. No em-dashes, arrows, curly quotes, emojis, "spearheaded / leveraged / delve / seamless / passionate", tricolons or keyword lists.
 6. PDFs come only from LaTeX (Overleaf or pdflatex). No AI tool names in metadata, no hidden text.
 7. Summaries: only the approved ones in config/summaries.md, with light per-job edits.
-8. After every tailored resume, spawn a critique subagent: (a) a skeptical hiring manager skimming for 30 seconds, (b) an AI-writing detector, (c) a fact check against profile.json and base.tex. Fix every valid finding, recompile, then submit. Skip a role rather than send text that sounds generated.
+8. After every tailored resume, spawn a critique subagent: (a) a skeptical hiring manager skimming for 30 seconds, (b) an AI-writing detector, (c) a fact check against profile.json and base.tex. Fix every valid finding, recompile, then submit. Check each finding against profile.json first: the critic can be wrong about what is confirmed (e.g. telling you to drop a skill the candidate confirmed), and only facts the candidate confirmed decide. Skip a role rather than send text that sounds generated.
 
 ## Applying
 9. Auto-submit (standing approval) only when: the role fits (level, location, no knockout of years beyond the profile, no "no sponsorship" language if sponsorship is needed), every answer is sourced, and the resume uses confirmed skills only. Set `auto_submit` to false in config/profile.json to require a "go" for every application.

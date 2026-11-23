@@ -59,6 +59,8 @@ YEARS = re.compile(r"(\d{1,2})\s*\+?\s*(?:-|to|–)?\s*(?:\d{1,2}\s*)?\+?\s*year
 SKILL_RE = [(_R(k), w) for k, w in S["skills"].items() if not k.startswith("_")]
 OFF_STACK = _R(S["off_stack"]) if S.get("off_stack") else None
 TITLE_BONUS = [(_R(k), w) for k, w in S.get("title_bonus", {}).items()]
+# Score bonus per company tier (1 = big tech, 2 = mid-size, 3 = smaller). Raise tier 2 to favor mid-size, sponsor-friendly companies.
+TIER_BONUS = {int(k): v for k, v in (S.get("tier_bonus") or {"1": 8, "2": 5, "3": 2}).items()}
 YEARS_PENALTY = sorted(((int(k), v) for k, v in S.get("years_penalty", {}).items()), reverse=True)
 
 
@@ -222,7 +224,7 @@ def pay_range(desc):
 
 def score(j):
     text = (j["title"] + " " + j["desc"])
-    s = 30 + {1: 8, 2: 5, 3: 2}.get(j["tier"], 0)
+    s = 30 + TIER_BONUS.get(j["tier"], 0)
     hits, sk = [], 0
     for rx, w in SKILL_RE:
         if rx.search(text): sk += w; hits.append(rx.pattern)

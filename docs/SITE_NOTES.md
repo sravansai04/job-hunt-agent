@@ -14,6 +14,7 @@ What we learned applying on each site, from real runs. Read the section for a si
 - **"Without" flips a question.** "Are you authorized to work WITHOUT sponsorship?" is answered by `automation/lib/answers.js`, never by a filler's own regex. Run `node tests/answers.test.js` after touching it.
 - **A posting that needs "U.S. Person status"** (citizen, permanent resident, refugee, asylee; usually for federal data or export control) is out for anyone on a work visa. The scanner flags it; also read the end of the description, where it is usually buried.
 - **Waiting on sign-in:** don't `waitForURL(/home/)`; sign-in URLs often contain the return path as a parameter and match too early. Wait for page text instead (Sign Out, Candidate Home).
+- Gmail's unread search can keep listing a message for a few seconds after it was marked read. Confirm with the inbox's unread rows (`tr.zA.zE`) before reporting.
 
 ## Workday (`*.myworkdayjobs.com`)
 - Each company (tenant) needs its own account. Create it with the job-search email, store the password as `jobhunt:<company>-workday`, verify via the email link.
@@ -22,6 +23,7 @@ What we learned applying on each site, from real runs. Read the section for a si
 - Conditional questions appear after an answer (for example a visa-type dropdown after "needs sponsorship = Yes"). Re-scan the page after each answer.
 - Some tenants put an assessment step right before Review whose footer button is **Submit**: it submits the whole application. Upload the tailored resume on My Experience before reaching it.
 - The scanner reads Workday via `/wday/cxs/<tenant>/<site>/jobs` (public JSON). Big tenants sometimes time out; retry next run.
+- Python `urllib` can fail with a certificate error on `*/wday/cxs/<tenant>/<site>/job/<path>`; `curl -H 'Accept: application/json'` on the same URL returns the full posting.
 
 ## Oracle Candidate Experience (Goldman Sachs `higher.gs.com` apply flow, JPMorgan `jpmc.fa.oraclecloud.com`)
 - Flow: enter email, accept the terms dialog (click **AGREE** first or Next times out), then a 6-box one-time PIN from email: click the first box and type all 6 digits.
@@ -34,10 +36,16 @@ What we learned applying on each site, from real runs. Read the section for a si
 - Most fields are react-select comboboxes: click, read the visible options, click the exact match (`greenhouse_fill.js`).
 - The race question appears only after the Hispanic/Latino answer: second pass needed.
 - Custom free-text questions vary per company: the filler lists them in `review`; draft answers from facts and, for personal ones, ask the user.
+- Some companies (e.g. Toast) redirect `job-boards.greenhouse.io/<co>/jobs/<id>` to their own careers page with no form. Open `job-boards.greenhouse.io/embed/job_app?for=<co>&token=<id>` instead: same form, same field ids.
+- Read a combobox's options only from its own listbox (`aria-controls` on the input). A page-wide `[role=option]` query also returns the phone-country list and picks the wrong value.
+- The question list (labels, field names, options) is available before opening the page: `boards-api.greenhouse.io/v1/boards/<co>/jobs/<id>?questions=true`.
 
 ## SmartRecruiters (ServiceNow and others)
 - Public API: `api.smartrecruiters.com/v1/companies/<Company>/postings` and `/postings/<id>` for the full ad.
 - After "willing to relocate = Yes" a follow-up "relocate at your own expense?" radio appears and shifts the radio order: re-read the questions before answering.
+- The "Easy Apply" flow (`jobs.smartrecruiters.com/oneclick-ui/company/<Co>/publication/<uuid>`) uses shadow DOM web components: ids are duplicated on the host and the inner input, so target `input#<id>`. Option text is empty to `innerText`; read options with `ariaSnapshot()` on the open listbox.
+- Page 1: the postal-code field is an autocomplete. Type it slowly and click the suggestion (e.g. "<zip>, <City>, <ST>, USA"). Page 2 ("Preliminary questions") holds work authorization, sponsorship, compensation-range dropdowns, relocation, EEO and two look-alike checkboxes: an accuracy / not-under-contract attestation and the privacy notice. Check each one by id, then verify every value with a full-page screenshot before Submit.
+- Radios have no accessible names (values 1 = Yes, 0 = No), so select them by order within each question and verify.
 
 ## Ashby (`jobs.ashbyhq.com`)
 - `ashby_fill.js` is the generic filler; `ashby_openai_fill.js` is OpenAI's variant. The board API `api.ashbyhq.com/posting-api/job-board/<company>` returns every job with `descriptionPlain`.
@@ -47,6 +55,8 @@ What we learned applying on each site, from real runs. Read the section for a si
 - Free-text questions ("What have you built recently?") come back for review. Answer from confirmed facts only, plain ASCII, in the candidate's voice.
 - OpenAI's form ends with a personal certification checkbox ("I confirm I have read the above"): the user must tick it themselves.
 - Some companies limit how many open applications you can have: check before using a slot.
+- Fetch the exact fields first: POST `jobs.ashbyhq.com/api/non-user-graphql` with operation `ApiJobPosting` returns `applicationForm.sections[].fieldEntries` (path, type, required, title).
+- Re-fill name, email, phone and LinkedIn after the resume upload; the parse overwrites them.
 
 ## Apple (`jobs.apple.com`)
 - Applying needs the user's own Apple ID sign-in (hand it back). Once signed in, `apple_fill.js` handles resume, profile, work history, education and questions.
@@ -79,6 +89,7 @@ What we learned applying on each site, from real runs. Read the section for a si
 
 ## Meta
 - Listings render client-side; `scan/sweep.js` scrapes job links, but Meta often shows nothing to automated browsers. Check by hand when it reports no links.
+- 2026-11: the search page moved to `metacareers.com/jobsearch?...` and job links to `/profile/job_details/<id>`. `scan/sweep.js` handles both the old and the new link formats.
 
 ## Atlassian
 - Listings: `atlassian.com/endpoint/careers/listings` (all roles, all countries: filter for US/Americas).

@@ -169,18 +169,18 @@ async (page) => {
   });
   await safe('Meta', async () => {
     const m = await bg(
-      'https://www.metacareers.com/jobs?roles[0]=Full%20time%20employment&teams[0]=Software%20Engineering&offices[0]=North%20America&sort_by_new=true',
+      'https://www.metacareers.com/jobsearch?roles[0]=Full%20time%20employment&teams[0]=Software%20Engineering&offices[0]=North%20America&sort_by_new=true',
       15000,
     );
     await m.mouse.wheel(0, 4000);
     await m.waitForTimeout(3000);
     const rows = await m.evaluate(() =>
-      [...document.querySelectorAll('a[href*="/jobs/"]')]
+      [...document.querySelectorAll('a[href*="/job_details/"], a[href*="/jobs/"]')]
         .map((a) => [a.href, a.innerText.replace(/\s+/g, ' ').trim()])
-        .filter((x) => /\/jobs\/\d{8,}/.test(x[0])),
+        .filter((x) => /\/(jobs|job_details)\/\d{8,}/.test(x[0])),
     );
     await m.close();
-    for (const [href, txt] of rows) add('Meta', href.match(/\/jobs\/(\d+)/)[1], txt.slice(0, 120), '', '', href);
+    for (const [href, txt] of rows) add('Meta', href.match(/\/(?:jobs|job_details)\/(\d+)/)[1], txt.slice(0, 120), '', '', href);
     if (!rows.length)
       out.errors.push('Meta: page loaded but no job links found (layout change or sign-in wall); check it by hand');
   });
