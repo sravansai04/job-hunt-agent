@@ -53,7 +53,8 @@ Manual setup reference: [setup/SETUP.md](setup/SETUP.md).
 | Tesla | sweep | filler (`tesla_fill.js`) |
 | Walmart | by hand | filler (`walmart_fill.js`) |
 | Lever, JazzHR | scanner | no filler: resume and drafted answers are prepared, you apply ("Ready: apply manually") |
-| SmartRecruiters (ServiceNow), Oracle (JPMorgan, Goldman, Uber), iCIMS (Atlassian) | sweep or by hand | no filler: you apply with the prepared resume and answers |
+| SmartRecruiters Easy Apply (ServiceNow, NBCUniversal) | sweep or by hand | filler (`smartrecruiters_fill.js`, two pages, never submits) |
+| Oracle (JPMorgan, Goldman, Uber), iCIMS (Atlassian) | sweep or by hand | no filler: you apply with the prepared resume and answers |
 | Meta, Google | by hand | no filler: you apply with the prepared resume and answers |
 | LinkedIn | never | never (automating it breaks LinkedIn's terms) |
 

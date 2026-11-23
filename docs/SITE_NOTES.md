@@ -41,6 +41,7 @@ What we learned applying on each site, from real runs. Read the section for a si
 - The question list (labels, field names, options) is available before opening the page: `boards-api.greenhouse.io/v1/boards/<co>/jobs/<id>?questions=true`.
 
 ## SmartRecruiters (ServiceNow and others)
+- Filler: `smartrecruiters_fill.js`. Run it on the Easy Apply tab: the first run fills page 1 and clicks Next when nothing needs review; the second run fills "Preliminary questions" (work auth, compensation bucket from `salary_short`, relocation, EEO from `profile.eeo`, privacy) and returns the rest in `review`. It never clicks Submit. The accuracy / not-under-contract attestation is ticked only if `answers.acknowledge_ok` matches its wording.
 - Public API: `api.smartrecruiters.com/v1/companies/<Company>/postings` and `/postings/<id>` for the full ad.
 - After "willing to relocate = Yes" a follow-up "relocate at your own expense?" radio appears and shifts the radio order: re-read the questions before answering.
 - The "Easy Apply" flow (`jobs.smartrecruiters.com/oneclick-ui/company/<Co>/publication/<uuid>`) uses shadow DOM web components: ids are duplicated on the host and the inner input, so target `input#<id>`. Option text is empty to `innerText`; read options with `ariaSnapshot()` on the open listbox.

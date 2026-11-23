@@ -47,6 +47,12 @@ const FREE = { citizen: 'Yes', gc: 'Yes', h1b: 'No', opt: 'No' }; // "authorized
 const cases = [
   // work authorization
   ['Are you legally authorized to work in the United States?', 'Yes'],
+  // SmartRecruiters Easy Apply (NBCUniversal, 2026-11)
+  ['Are you legally authorized to work in the country where this role is based?', 'Yes'],
+  ['Do you now, or will you in the future, need sponsorship from an employer in order to obtain, extend or renew your authorization to work in the US?', NEEDS_ANY],
+  ['Are you willing to relocate?', 'Yes'],
+  ['You declare that you have read and agree to the privacy notice of NBCUniversal.', 'Yes'],
+  ['I understand that the information I provide must be complete and accurate to the best of my knowledge and that falsification and/or incomplete information may jeopardize my employment now or in the future. I am not currently under contract with any other company or bound by any legal obligation that would prevent me from accepting a new role at this time.', 'STOP'],
   ['Are you legally authorized to work in the US without sponsorship?', FREE],
   ['Are you able to work in the United States without employer sponsorship now or in the future?', FREE],
   ['Are you eligible to work in the U.S. without requiring visa sponsorship?', FREE],
