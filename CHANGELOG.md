@@ -5,6 +5,8 @@ Claude reads the entries newer than the version a user has and tells them in one
 `[action]` marks a change the user has to act on (a new question, a new setting, a new login).
 
 ## 2026-11-24
+- README shows what the tracker looks like (screenshots with sample data).
+- Tracker: the "Click to see these roles" hint on the KPI tiles showed raw HTML in its tooltip; fixed.
 - Automatic updates: Claude checks this repo for new versions, updates safely and tells you what changed. You choose at setup: update automatically, ask first, or never. [action] Existing installs are asked once at the next session.
 - Learning loop: Claude logs what it learns about sites and forms on your machine. If you opt in, it shares a privacy-scrubbed summary with the project every 2 weeks as a GitHub issue. [action] Existing installs are asked once at the next session.
 - README checklist of what to have ready before cloning.

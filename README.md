@@ -43,6 +43,23 @@ A Claude Code setup that runs a software-engineering job search end to end:
 
 Everything personal (profile, resume, tracker URL, logs) lives in git-ignored files. The repo only holds code, templates and examples.
 
+## What the tracker looks like
+Screenshots with made-up sample data. Yours is a private page in your Claude account that only you can open, and it works on your phone.
+
+**Overview:** totals, weekly goal, reply rate, where applications stand, applications per day, outcomes by company, what's waiting on you, recent activity.
+![Tracker overview with sample data](docs/images/tracker-overview.png)
+
+**Board:** drag a card to change its stage. Cards flag roles with no reply after 7+ days and roles waiting on you (CAPTCHA, your answer, a login).
+![Tracker board with sample data](docs/images/tracker-board.png)
+
+**All roles:** searchable, sortable table with stage, applied date, days since applying, location and pay.
+![Tracker table with sample data](docs/images/tracker-roles.png)
+
+<details><summary>On a phone</summary>
+
+<img src="docs/images/tracker-phone.png" alt="Tracker on a phone with sample data" width="320">
+</details>
+
 ## Quick start (no setup by hand)
 1. Install [Claude Code](https://claude.com/claude-code) and sign in.
 2. `git clone <this repo> && cd job-hunt-agent && claude`

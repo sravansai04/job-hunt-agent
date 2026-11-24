@@ -330,7 +330,7 @@ function agePill(a){const d=age(a);if(d==null||!["Applied","Referred","Under rev
 /* ---------- tooltip ---------- */
 const tip=$("tip");
 // data-tip values are read back decoded, so escape everything again and re-allow only <b> and <br>.
-const safeTip=s=>esc(s).replace(/&lt;(\/?b|br)&gt;/g,"<$1>");
+const safeTip=s=>esc(s).replace(/&lt;(\/?[bi]|br)&gt;/g,"<$1>");
 document.addEventListener("pointermove",e=>{const t=e.target.closest("[data-tip]");if(!t){tip.hidden=true;return}tip.innerHTML=safeTip(t.dataset.tip);tip.hidden=false;const w=tip.offsetWidth,h=tip.offsetHeight;let x=e.clientX+14,y=e.clientY+14;if(x+w>innerWidth-8)x=e.clientX-w-14;if(y+h>innerHeight-8)y=e.clientY-h-14;tip.style.left=x+"px";tip.style.top=y+"px"});
 document.addEventListener("pointerleave",()=>tip.hidden=true);
 
@@ -358,7 +358,7 @@ function renderKpis(){
   const wa=w.map(age),b1=wa.filter(d=>d<14).length,b2=wa.filter(d=>d>=14&&d<21).length,b3=wa.filter(d=>d>=21).length;
   $("kWaitBar").innerHTML=[[b1,"background:var(--warn-soft);border:1px solid var(--warn)"],[b2,"background:var(--warn)"],[b3,"background:var(--bad)"]].filter(x=>x[0]).map(([n,c])=>`<i style="flex:${n};${c}"></i>`).join("");
   const st={};heard.forEach(a=>st[a.stage]=(st[a.stage]||0)+1);
-  const T=(k,h)=>document.querySelector(`[data-kpi="${k}"]`).dataset.tip=h+"<br><span style='opacity:.75'>Click to see these roles</span>";
+  const T=(k,h)=>document.querySelector(`[data-kpi="${k}"]`).dataset.tip=h+"<br><i>Click to see these roles</i>";
   const top=Object.entries(ap.reduce((m,a)=>(m[a.company]=(m[a.company]||0)+1,m),{})).sort((x,y)=>y[1]-x[1]).slice(0,3).map(([c,n])=>`${esc(c)} ${n}`).join(", ");
   T("total",`<b>${ap.length} applications</b> to ${new Set(ap.map(a=>a.company)).size} companies<br>Most: ${top}`);
   T("week",`<b>${wk} this week</b> (since ${fmt(ws)})<br>${lastWk} last week · goal ${goal}`);

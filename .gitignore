@@ -17,3 +17,6 @@ automation/**/*.yml
 .DS_Store
 __pycache__/
 resume/original/
+
+# README screenshots (sample data only)
+!docs/images/*.png
