@@ -21,6 +21,7 @@ Rules while onboarding:
      - `e_signature`: typing their legal name as an electronic signature (Tesla acknowledgment, Workday disability self-ID).
    - Yes/No facts typed on every form (non-compete, worked here before, relatives at the company, background check, SMS, ...). Go through `profile.answers` one by one; leave a value null if the answer depends on the company.
    - Sharing lessons with the project: every 2 weeks, post a GitHub issue to the upstream repo with what this install learned (site changes, new question wordings, broken selectors, what they wished it could do), with all personal data stripped and checked before posting. It posts from their GitHub account (`gh auth login`, skip if they don't want it). Ask once: "Share automatically" / "Don't share". Save `data/feedback.json` as `{"share": "auto" or "off", "last_shared": "<today>"}`.
+   - Updates: "New versions of this tool come from GitHub. Update automatically (Recommended), ask me first, or never?" Explain in one line: updates never touch their profile, resume or tracker, and any change to permissions or installed tools is always shown first. Save `data/updates.json` as `{"mode": "auto" | "ask" | "off", "last_check": "<now>", "version": "<git rev-parse HEAD>"}`.
    Ask them to approve the project MCP server and settings if Claude Code prompts.
 3. Run `./setup/install.sh`. Fix anything missing yourself (Homebrew, Node). Ask only if a system password prompt is needed, and let them type it.
 

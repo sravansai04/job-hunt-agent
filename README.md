@@ -61,6 +61,9 @@ Start Claude Code with `claude --remote-control "Job Hunt"` and keep the Mac awa
 
 Commands: `/onboard` (re-run setup), `/apply` (one pass now), `/status`, `/share-learnings`.
 
+### Updates
+New versions reach you without any action. At setup you choose: update automatically, ask first, or never. Claude checks this repo once a day when you open a session and every 5 days in the background. It updates only if you haven't edited the repo's own files, runs the tests afterwards and rolls back if they fail. Then it tells you in one line what changed (from [CHANGELOG.md](CHANGELOG.md)). Your profile, resume, tracker and logs are git-ignored, so updates never touch them. Changes to permissions, installed tools or git hooks are always shown to you before they apply.
+
 ### Sharing what it learns
 If you opt in during setup, every 2 weeks Claude posts a GitHub issue to this repo with what your install learned: sites that changed, new screening-question wordings, broken selectors and fixes, and what you wished it could do. Personal data is stripped and the text is checked against your profile before it's posted. Say "stop sharing learnings" to turn it off. Your lessons also stay in your own `docs/SITE_NOTES.md` and `data/LEARNINGS.md`, so your agent doesn't relearn the same thing.
 Manual setup reference: [setup/SETUP.md](setup/SETUP.md).

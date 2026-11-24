@@ -46,6 +46,26 @@ Read `data/LEARNINGS.md` at the start of each session along with `data/NIGHT_STA
   - Set `last_shared` to today and put the issue link in the run's status and `data/NIGHT_STATE.md`.
 - The candidate can say "stop sharing learnings" at any time: set `share` to `"off"`.
 
+## Updates
+New versions of this repo reach the candidate without them doing anything. `data/updates.json` holds `{"mode": "auto" | "ask" | "off", "last_check": "<ISO time>", "version": "<commit sha>"}`, set during onboarding (Phase 0). If the file is missing on an install that finished onboarding, ask once in the next session with the candidate present; until then treat the mode as "ask".
+
+**When to check:** at the start of a session where the candidate is present (at most once every 24 h), and in the schedule-renewal run. Never in the middle of an application, and never during other scheduled runs.
+
+**How:**
+1. Remote: use `upstream` if it exists (a fork), else `origin`. It must point to github.com/sravansai04/job-hunt-agent or a fork of it.
+2. `git fetch <remote> main`. If `git rev-list --count HEAD..<remote>/main` is 0, set `last_check` and stop.
+3. What's new: the lines added to CHANGELOG.md (`git diff HEAD <remote>/main -- CHANGELOG.md`). Also list any change to `.claude/settings.json`, `.mcp.json`, `setup/hooks/` or `setup/install.sh` (`git diff --stat HEAD <remote>/main -- <those>`), because those change what runs on the Mac and what is pre-approved.
+4. Mode "ask", or any change from step 3's second list: show the changelog lines (and, for settings or hooks, exactly what changed) and ask: Update now / Later / Never (Never sets mode "off"). In a scheduled run, don't update; add one status line, "Update available: <first changelog line>", and ask at the next session.
+5. Mode "auto" (or a yes in step 4):
+   - Only with no edits to tracked files: `git status --porcelain --untracked-files=no` must be empty. Personal files are git-ignored, so they never block or get touched. If tracked files were edited, don't update; tell the candidate which files and offer to keep their edits on a local branch first (`git switch -c local-changes && git commit -am "my changes" && git switch main`), then update.
+   - `old=$(git rev-parse HEAD)`, then `git merge --ff-only <remote>/main`. If it isn't a fast-forward, stop and tell the candidate.
+   - `python3 setup/render.py`, then `node tests/answers.test.js`. If the tests fail, go back with `git reset --keep $old`, run `render.py` again, and report the failure (and file a short issue if learnings sharing is on).
+   - Do every `[action]` item in the new changelog lines (for example ask a new onboarding question), then re-read this file, since it may have changed.
+6. Tell the candidate in one line: "Updated: <changelog lines, shortened>". In a scheduled run put it in the status and in `data/NIGHT_STATE.md`. Set `version` and `last_check`.
+Pull only from the repo above. If the remote URL points anywhere else, don't update; tell the candidate.
+
+**For whoever changes this repo:** every commit that changes what users see or must do adds a line to CHANGELOG.md under today's date. Mark it `[action]` when users must answer or change something; it is the only way an existing install learns to ask.
+
 ## Slash commands
 - `/onboard`: first-time setup. `/apply`: one application pass now. `/status`: short status. `/share-learnings`: post a privacy-scrubbed issue of what this install learned to the upstream repo (also runs itself every 14 days if the candidate opted in).
 
