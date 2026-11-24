@@ -14,6 +14,7 @@ What we learned applying on each site, from real runs. Read the section for a si
 - **"Without" flips a question.** "Are you authorized to work WITHOUT sponsorship?" is answered by `automation/lib/answers.js`, never by a filler's own regex. Run `node tests/answers.test.js` after touching it.
 - **A posting that needs "U.S. Person status"** (citizen, permanent resident, refugee, asylee; usually for federal data or export control) is out for anyone on a work visa. The scanner flags it; also read the end of the description, where it is usually buried.
 - **Waiting on sign-in:** don't `waitForURL(/home/)`; sign-in URLs often contain the return path as a parameter and match too early. Wait for page text instead (Sign Out, Candidate Home).
+- Gmail search can lag behind new mail and return an older verification code. Read the newest code from the inbox rows instead of a search.
 - Gmail's unread search can keep listing a message for a few seconds after it was marked read. Confirm with the inbox's unread rows (`tr.zA.zE`) before reporting.
 
 ## Workday (`*.myworkdayjobs.com`)
@@ -98,6 +99,9 @@ What we learned applying on each site, from real runs. Read the section for a si
 
 ## Uber
 - The old `loadSearchJobsResults` endpoint is gone (404). Uber now runs on Oracle Candidate Experience: list jobs with `iaziqy.fa.ocs.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList&finder=findReqs;siteNumber=UberCareers,keyword=software%20engineer,sortBy=POSTING_DATES_DESC` and read one with `recruitingCEJobRequisitionDetails?expand=all&onlyData=true&finder=ById;Id="<id>",siteNumber=UberCareers`.
+- Apply at `iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/job/<id>/apply/email`. Ticking "I agree with the terms and conditions" opens a terms dialog: click **Agree** or the box stays unticked. A one-time code is emailed; it goes into 6 single-digit boxes (click the first, type all 6).
+- One page holds everything, prefilled from the last application (experience, education, old resume). Yes/No answers are `button.cx-select-pill-section`; the chosen one gets the class `cx-select-pill-section--selected` (no `aria-pressed`), and the question order changes between postings, so match each pill by its question text. Dropdowns (subsidiary, gender, veteran status) list options only after you type into the input; ids contain digits and dashes, so select them with `[id="..."]`.
+- Replace the old resume ("REMOVE RESUME", then the last `input[type=file]`) and type the full name in the e-signature field (`input[name=fullName]`). After Submit the "My Applications" page lists each application with its status.
 
 ## Walmart (`careers.walmart.com`)
 - Multi-step wizard with an email one-time code at sign-in. `walmart_fill.js` does ONE step per call (Tell us about yourself, home address, employment history, voluntary disclosures, EEO, military, WOTC, consent) and returns the next heading.
@@ -120,3 +124,4 @@ What we learned applying on each site, from real runs. Read the section for a si
 ## Overleaf
 - `overleaf_compile.js` replaces the editor content through CodeMirror (`.cm-content` → `cmView.view.dispatch`), recompiles, downloads `output.pdf`, then restores the base resume so the project always holds the base version.
 - Check the PDF afterwards: page count, and metadata (Creator LaTeX/pdfTeX, author = candidate). No AI tool names anywhere.
+- The browser profile can lose its sign-ins (Gmail and Overleaf both signed out at once). The compile then times out waiting for `.cm-content`. Hand the sign-in to the candidate; `setup/compile_resume.sh` needs a full TeX install (a minimal one lacks microtype, enumitem, titlesec and the rest).
