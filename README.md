@@ -1,5 +1,38 @@
 # Job Hunt Agent
 
+## Before you clone: checklist
+
+**Must have**
+- [ ] **A Mac** (macOS). Site passwords go in the macOS Keychain and resumes are read with `textutil`. On Linux only the job scanner works.
+- [ ] **Claude Code** installed and signed in, on a paid Claude plan. Scheduled runs use a lot of usage every day, so a higher-usage plan helps.
+- [ ] **Homebrew** ([brew.sh](https://brew.sh)). The installer uses it to add Python, Node and the Playwright browser if they're missing.
+- [ ] **Git** (`xcode-select --install` if `git` isn't found).
+- [ ] **A Gmail for the job search.** A dedicated one is best. Career-site accounts are created with it and verification codes are read from it.
+- [ ] **Your resume** as a PDF, Word file or LaTeX file.
+- [ ] **About 30 minutes** for the first-time setup interview.
+- [ ] **A Mac that can stay awake and online** while the schedules run (plugged in, sleep off or `caffeinate`).
+
+**Have these answers ready** (onboarding asks for them)
+- [ ] Target job titles, levels, locations, remote/hybrid/on-site and relocation.
+- [ ] Work authorization: do you need visa sponsorship **now**, and will you need it **later** (OPT, STEM OPT, H-4 EAD, green card)?
+- [ ] Salary expectation and notice period or earliest start date.
+- [ ] For each job and project: your exact role, the tech you used daily, team size and real numbers (scale, latency, users, money or time saved).
+- [ ] Which skills you use daily, have used in production, only know conceptually, or have never used.
+- [ ] Dream companies, companies to avoid (current employer, competitors).
+- [ ] Contact details, LinkedIn/GitHub, a mailing address for forms, and optionally voluntary self-ID answers (each can be "decline to answer").
+- [ ] Whether Claude may submit on its own or you approve each application, and whether it may tick terms and conditions, agree to arbitration, or type your name as an e-signature.
+
+**Optional**
+- [ ] **Overleaf account** (free), signed in with the job-search Gmail, to compile resumes. Without it you need a full LaTeX install (`./setup/install.sh --latex` installs MacTeX). A minimal TeX install lacks the packages the resume uses.
+- [ ] **Claude mobile app** to follow progress and answer questions from your phone.
+- [ ] **Apple ID** if you want to apply to Apple (you sign in yourself).
+
+**You'll still do by hand:** signing in to Gmail and Overleaf (and again if a session expires), CAPTCHAs, 2FA codes, answers only you can give ("Why this company?"), and anything on LinkedIn (never automated).
+
+Built for **US** job searches (location filters, work-authorization and EEO questions).
+
+---
+
 A Claude Code setup that runs a software-engineering job search end to end:
 
 1. **Find jobs**: `scan/scan.py` reads ~70 companies' public career feeds (Greenhouse, Lever, Ashby, Workday, Amazon), drops roles that don't fit (level, location, no-sponsorship language), and scores the rest against your skills.
