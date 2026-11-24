@@ -59,7 +59,10 @@ After that it runs on its own. It only stops for CAPTCHAs, 2FA codes and questio
 ### From your phone
 Start Claude Code with `claude --remote-control "Job Hunt"` and keep the Mac awake. The session appears in the Claude mobile app, where you can see progress, answer questions and say "status" or "apply now". The tracker link works in any phone browser. CAPTCHAs still need the Mac.
 
-Commands: `/onboard` (re-run setup), `/apply` (one pass now), `/status`.
+Commands: `/onboard` (re-run setup), `/apply` (one pass now), `/status`, `/share-learnings`.
+
+### Sharing what it learns
+If you opt in during setup, every 2 weeks Claude posts a GitHub issue to this repo with what your install learned: sites that changed, new screening-question wordings, broken selectors and fixes, and what you wished it could do. Personal data is stripped and the text is checked against your profile before it's posted. Say "stop sharing learnings" to turn it off. Your lessons also stay in your own `docs/SITE_NOTES.md` and `data/LEARNINGS.md`, so your agent doesn't relearn the same thing.
 Manual setup reference: [setup/SETUP.md](setup/SETUP.md).
 
 ## Use it responsibly

@@ -20,6 +20,7 @@ Rules while onboarding:
      - `arbitration`: agreeing to an arbitration agreement (Tesla, OpenAI). This waives the right to sue in court for some claims.
      - `e_signature`: typing their legal name as an electronic signature (Tesla acknowledgment, Workday disability self-ID).
    - Yes/No facts typed on every form (non-compete, worked here before, relatives at the company, background check, SMS, ...). Go through `profile.answers` one by one; leave a value null if the answer depends on the company.
+   - Sharing lessons with the project: every 2 weeks, post a GitHub issue to the upstream repo with what this install learned (site changes, new question wordings, broken selectors, what they wished it could do), with all personal data stripped and checked before posting. It posts from their GitHub account (`gh auth login`, skip if they don't want it). Ask once: "Share automatically" / "Don't share". Save `data/feedback.json` as `{"share": "auto" or "off", "last_shared": "<today>"}`.
    Ask them to approve the project MCP server and settings if Claude Code prompts.
 3. Run `./setup/install.sh`. Fix anything missing yourself (Homebrew, Node). Ask only if a system password prompt is needed, and let them type it.
 
@@ -81,4 +82,4 @@ Offer to restart now with remote control if they want it.
 1. Run the scan (`cd scan && python3 scan.py --days 7 --min 60 --all`), show the top 10 matches, and ask if the mix looks right. Adjust `search.json` weights/filters from their feedback and re-run once.
 2. Do one full application together, end to end, showing each step, with explicit approval to submit even if auto-submit is on.
 3. Create the schedules from `prompts/SCHEDULES.md` (ask whether the default times suit them).
-4. Mark onboarding done in `data/onboarding.json` and finish with: what runs when, what will need them, how to check status (`/status`), and how to pause ("stop applying").
+4. Mark onboarding done in `data/onboarding.json`, and finish with: what runs when, what will need them, how to check status (`/status`), how to pause ("stop applying"), and, if they opted in, that a privacy-scrubbed learnings issue goes to the project every 2 weeks ("stop sharing learnings" turns it off).

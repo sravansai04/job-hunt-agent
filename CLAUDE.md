@@ -25,8 +25,29 @@ Read these before doing anything, every session:
 5. Copy the PDF to `profile.resume_pdf`, fill the form, verify every field, submit (if `auto_submit`), update the tracker, log one line in `data/NIGHT_STATE.md`.
 6. No filler for the site (Lever, JazzHR, Oracle, iCIMS, Meta, Google, Uber, ...)? Don't fill it freehand. Tailor the resume, draft every answer through `answerFor` / `textAnswerFor`, set the tracker row to "Ready: apply manually" (resume path + drafted answers), and tell the candidate.
 
+## Learning loop
+This repo improves from what every candidate's sessions teach. Two parts:
+
+**1. Learn inside this install, as it happens.** Whenever something surprises you (a site changed its form, a filler stopped on a new question wording, a selector broke, a workaround fixed it, a scan source died, a rule produced a bad result), fix it and write the lesson down right away, not at the end of the run:
+- Site behavior → `docs/SITE_NOTES.md` under that site.
+- A new screening-question wording → the rule in `automation/lib/answers.js` plus the real wording in `tests/answers.test.js`, then `node tests/answers.test.js`.
+- Anything about this candidate (skills, holds, preferences) → `config/rules.local.md` only.
+- Also append one dated line to `data/LEARNINGS.md` (git-ignored): `YYYY-MM-DD | site or area | what happened | what fixed it`. This is the raw log the share step reads.
+Read `data/LEARNINGS.md` at the start of each session along with `data/NIGHT_STATE.md`, so a lesson learned once is not learned twice.
+
+**2. Share it upstream every 14 days.** Upstream is `https://github.com/sravansai04/job-hunt-agent` (the original repo, even when this is a fork). `data/feedback.json` holds `{"share": "auto" | "off", "last_shared": "YYYY-MM-DD"}`, set once during onboarding (Phase 0), where the candidate opts in or out. No per-issue approval after that.
+- When `share` is `"auto"` and 14+ days have passed since `last_shared` (or since onboarding finished), run `/share-learnings` at the end of the next run. Posting runs `gh issue create`, which Claude Code asks permission for: in a scheduled run with nobody there to approve it, write the draft to `data/learnings_issue.md`, note it in the status, and post it at the start of the next session where the candidate is present. If `share` is `"off"` or the file is missing, do nothing.
+- Rules for the issue:
+  - Only generic, reusable lessons: site and form behavior, broken or changed selectors, new question wordings, scanner sources that died or moved, filler bugs and fixes, rules that worked badly, and what the candidate wished the agent could do.
+  - **Strip everything personal**: names, emails, phone numbers, addresses, ZIP codes, employers, schools, visa details, salary, EEO answers, resume content, tracker URLs, account names, job IDs and the list of companies applied to. Say "a Workday tenant" or "a fintech on Greenhouse" when the company itself isn't the lesson; a site name is fine when the lesson is about that site.
+  - If local code fixes are worth sending, describe them and include the diff of tracked files only (`git diff origin/main -- automation scan docs tests`).
+  - Before posting, grep the issue text for every value in `config/profile.json` (name, emails, phone, address, ZIP, employers, schools, links). Any match: remove it and grep again. If it still can't be cleaned, don't post; keep the draft in `data/learnings_issue.md` and mention it in the status.
+  - Post with `gh issue create --repo sravansai04/job-hunt-agent --title "Learnings: <month year>" --label learnings --body-file data/learnings_issue.md` (drop `--label` if it fails). If `gh` is not signed in, skip posting, keep the draft, and add one status line: "Learnings draft ready: data/learnings_issue.md (sign in with `gh auth login` to auto-share)".
+  - Set `last_shared` to today and put the issue link in the run's status and `data/NIGHT_STATE.md`.
+- The candidate can say "stop sharing learnings" at any time: set `share` to `"off"`.
+
 ## Slash commands
-- `/onboard`: first-time setup. `/apply`: one application pass now. `/status`: short status.
+- `/onboard`: first-time setup. `/apply`: one application pass now. `/status`: short status. `/share-learnings`: post a privacy-scrubbed issue of what this install learned to the upstream repo (also runs itself every 14 days if the candidate opted in).
 
 ## Never
 - Invent facts, push personal data to git, print passwords, enter an SSN, automate LinkedIn, contact anyone, or solve CAPTCHAs/2FA (hand them to the candidate).
