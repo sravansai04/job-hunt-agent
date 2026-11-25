@@ -5,7 +5,6 @@ Claude reads the entries newer than the version a user has and tells them in one
 `[action]` marks a change the user has to act on (a new question, a new setting, a new login).
 
 ## 2026-11-24
-- Sign-ins: Claude no longer pastes or creates passwords. On password-only sites (most Workday companies) it opens the page with your email filled and you finish with `! ./setup/signin.sh <site>` + Cmd+V (`new <site>` makes a new account password). "Sign in with Google" is used wherever a site offers it. [action] The first time a site needs it, Claude will show you the command.
 - README shows what the tracker looks like (screenshots with sample data).
 - Tracker: the "Click to see these roles" hint on the KPI tiles showed raw HTML in its tooltip; fixed.
 - Automatic updates: Claude checks this repo for new versions, updates safely and tells you what changed. You choose at setup: update automatically, ask first, or never. [action] Existing installs are asked once at the next session.

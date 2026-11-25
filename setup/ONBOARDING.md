@@ -13,7 +13,7 @@ Rules while onboarding:
 2. Explain the permissions you'll ask for once, so later runs are hands-off:
    - Running the scanner, installer and resume compiler (`.claude/settings.json` pre-approves these for this folder).
    - Controlling a separate Chrome window (Playwright) for job sites and Gmail. It uses its own profile in `~/.job-hunt-browser`, not their normal Chrome.
-   - Sign-ins: Claude never types or pastes passwords. On sites with "Sign in with Google" it uses that. On password-only sites (most Workday companies) it opens the page with their email filled and they finish it with one command, `! ./setup/signin.sh <site>` (copies the saved password; `new <site>` creates and saves one), and Cmd+V. Applications are batched per site so one sign-in covers several.
+   - Saving generated career-site passwords in the macOS Keychain under `jobhunt:<site>`.
    - Submitting applications on their behalf when every guardrail passes (ask: auto-submit, or approve each one?). Save the answer as `auto_submit`.
    - Legal steps the fillers would take in their name. Ask about EACH one separately, show a real example, and save the answer in `profile.consents` (false = the filler stops and asks every time):
      - `terms_and_conditions`: ticking a site's terms, disclaimers or candidate code of conduct (Workday, Microsoft, Tesla).
@@ -65,7 +65,7 @@ Draft 3-5 summaries (one per role type they target) from Phase 2 facts only. Run
 ## Phase 6: browser and accounts
 1. Open the Playwright browser (any `browser_navigate`) and go to https://mail.google.com. Ask them to sign in to the email they want employers to use (recommend a dedicated job-search Gmail). Wait, then confirm the inbox loads.
 2. Optional: Overleaf. Navigate to overleaf.com, let them sign in with Google, create a blank project yourself, save its URL in `profile.overleaf.project_url`. If they skip it, use `setup/compile_resume.sh` (run `./setup/install.sh --latex` first).
-3. Explain: on password-only career sites you'll open the sign-in or create-account page with their email filled, and they finish it with `! ./setup/signin.sh new <site>` (new account; the password is generated and saved in the Keychain) or `! ./setup/signin.sh <site>` (existing account), then Cmd+V. You read verification emails from Gmail yourself. Besides those sign-ins they're only asked for CAPTCHAs and 2FA codes.
+3. Explain: for each new career site you'll create the account with that email, generate a strong password, store it in the Keychain, and read verification emails from Gmail yourself. They will only be asked for CAPTCHAs and 2FA codes.
 4. Sites needing their personal login (for example Apple ID, Amazon if they already have an account): note them in `config/rules.local.md`.
 
 ## Phase 7: tracker
