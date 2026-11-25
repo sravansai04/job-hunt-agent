@@ -5,7 +5,7 @@ What we learned applying on each site, from real runs. Read the section for a si
 ## General (all sites)
 - **One browser, many tabs.** Open work in background tabs (CDP `Target.createTarget {url, background: true}` + `ctx.waitForEvent('page')`) so the user's window doesn't jump to the front. Keep the window minimized. Close finished tabs.
 - **Playwright `browser_run_code_unsafe` limits:** no `process`, no `require`, no reaching `localhost` servers from the sandbox, and `filename` must live under the workspace roots (put generated scripts in `automation/build/`, not /tmp).
-- **Passing a password:** clipboard only (`security ... -w | tr -d '\n' | pbcopy`, focus field, `Meta+V`, check `value.length`, then `printf '' | pbcopy`). Never print it, never put it in a script.
+- **Passwords are the candidate's step.** Claude never types, pastes or creates one. Open the page in a background tab, fill the email, and hand off: the candidate runs `! ./setup/signin.sh <site>` and presses Cmd+V. Use "Sign in with Google" where offered. A signed-in session usually lasts a while, so batch that site's applications.
 - **Verification emails:** `automation/gmail_codes.js` reads them in a background tab. Opening a message marks it read.
 - **A restart loses tabs.** After the Mac restarts, tabs that were waiting on the user (CAPTCHA, half-filled forms) are gone; re-open and re-fill them, and note it in the tracker.
 - **Verify before submit.** Every filler stops at review. Read the review page back and compare each field with profile.json before clicking Submit.
@@ -18,7 +18,7 @@ What we learned applying on each site, from real runs. Read the section for a si
 - Gmail's unread search can keep listing a message for a few seconds after it was marked read. Confirm with the inbox's unread rows (`tr.zA.zE`) before reporting.
 
 ## Workday (`*.myworkdayjobs.com`)
-- Each company (tenant) needs its own account. Create it with the job-search email, store the password as `jobhunt:<company>-workday`, verify via the email link.
+- Each company (tenant) needs its own account. `workday_signin.js` opens the create-account form with the job-search email filled; the candidate runs `! ./setup/signin.sh new <company>-workday` and pastes into both password boxes. Claude then opens the verification link from Gmail.
 - Sign-in pages can have two password inputs (sign in + create account): target `input[autocomplete=current-password]` and the email field in the same form (`automation/workday_signin.js`).
 - `workday_fill.js` walks: Autofill with Resume, My Information, My Experience, Application Questions, Voluntary Disclosures, Self Identify, Review. It stops on any unknown question; answer it (ask the user if it's personal or legal), then re-run.
 - Conditional questions appear after an answer (for example a visa-type dropdown after "needs sponsorship = Yes"). Re-scan the page after each answer.

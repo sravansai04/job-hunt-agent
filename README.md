@@ -27,7 +27,7 @@
 - [ ] **Claude mobile app** to follow progress and answer questions from your phone.
 - [ ] **Apple ID** if you want to apply to Apple (you sign in yourself).
 
-**You'll still do by hand:** signing in to Gmail and Overleaf (and again if a session expires), CAPTCHAs, 2FA codes, answers only you can give ("Why this company?"), and anything on LinkedIn (never automated).
+**You'll still do by hand:** signing in to Gmail and Overleaf (and again if a session expires), the password step on sites that only take a password (Claude opens the page with your email filled; you run `! ./setup/signin.sh <site>` and press Cmd+V), CAPTCHAs, 2FA codes, answers only you can give ("Why this company?"), and anything on LinkedIn (never automated).
 
 Built for **US** job searches (location filters, work-authorization and EEO questions).
 
